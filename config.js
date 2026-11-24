@@ -7,15 +7,15 @@ window.APP_CONFIG = {
   logo: "logo.png",
 
   // អ៊ីមែលរបស់ Admin (អ្នកយល់ព្រមគណនីគ្រូ) — ត្រូវដូចគ្នានឹងក្នុង firestore.rules
-  adminEmail: "",
+  adminEmail: "sngoeundevith@gmail.com",
 
   // ចម្លងពី Firebase Console → Project settings → Your apps → Web app → firebaseConfig
   firebase: {
-    apiKey: "",
-    authDomain: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: ""
+    apiKey: "AIzaSyAzqcdg7dF7vt0iO8EiEggOlhEqrcHw_0c",
+    authDomain: "game-7212f.firebaseapp.com",
+    projectId: "game-7212f",
+    storageBucket: "game-7212f.firebasestorage.app",
+    messagingSenderId: "1036423987128",
+    appId: "1:1036423987128:web:a8312fdddc57821f89594d"
   }
 };
