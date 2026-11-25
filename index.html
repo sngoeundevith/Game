@@ -216,7 +216,7 @@ var S={
   view:"home",teacher:false,tab:"add",
   grade:null,subject:null,lesson:"*",count:10,name:"",run:null,
   form:{grade:4,subject:"",lesson:"",q:"",o:["","","",""],ans:0,explain:"",editId:null},
-  flt:{grade:"",subject:""},delId:null,flash:null,
+  flt:{grade:"",subject:"",lesson:""},delId:null,flash:null,
   imp:{grade:4,subject:"",lesson:"",text:"",json:""},
   loadingBank:ONLINE,bankErr:null,
   authReady:!ONLINE,user:null,profile:null,isAdmin:false,registering:false,busy:false,
@@ -391,8 +391,9 @@ function rating(p){
   return"ត្រូវខិតខំបន្ថែម";
 }
 function mmss(ms){
-  var s=Math.max(0,Math.round(ms/1000));
-  return kn(("0"+Math.floor(s/60)).slice(-2)+":"+("0"+(s%60)).slice(-2));
+  var t=Math.max(0,Math.round(ms/1000)),m=Math.floor(t/60),sec=t%60;
+  if(m===0)return kn(sec)+" វិនាទី";
+  return kn(m)+" នាទី"+(sec?" "+kn(sec)+" វិនាទី":"");
 }
 function finish(){
   var r=S.run;
@@ -537,8 +538,6 @@ async function drawCert(r,logo){
   x.fillText(khDate(r.t1),170,1085);
   x.fillStyle=MUTED;x.font="400 28px "+F2;x.fillText("លេខលិខិត៖ "+r.id,170,1130);
   x.textAlign="center";
-  x.strokeStyle=GOLD;x.lineWidth=4;x.beginPath();x.arc(cx,1080,52,0,Math.PI*2);x.stroke();
-  x.fillStyle=GOLD;x.font="400 30px "+F1;x.fillText("QCM",cx,1092);
   x.strokeStyle=NAVY;x.lineWidth=2;x.beginPath();x.moveTo(1230,1070);x.lineTo(1590,1070);x.stroke();
   if(r.teacher){x.fillStyle=NAVY;fit(x,r.teacher,F2,"700",34,340);x.fillText(r.teacher,1410,1050)}
   x.fillStyle=MUTED;x.font="400 28px "+F2;x.fillText("គ្រូបង្រៀន",1410,1118);
@@ -932,19 +931,31 @@ async function saveForm(){
 function canEdit(q){return S.isAdmin||q.ownerUid===(S.user&&S.user.uid)}
 function tabList(){
   var card=h("div",{class:"card"});
-  var subs=uniq(bank.map(function(q){return q.subject}));
+  var inGrade=bank.filter(function(q){return !S.flt.grade||String(q.grade)===S.flt.grade});
+  var subs=uniq(inGrade.map(function(q){return q.subject}));
+  if(S.flt.subject&&subs.indexOf(S.flt.subject)<0){S.flt.subject="";S.flt.lesson=""}
+  var inSub=inGrade.filter(function(q){return !S.flt.subject||q.subject===S.flt.subject});
+  var les=uniq(inSub.map(function(q){return q.lesson}).filter(Boolean));
+  var hasNone=inSub.some(function(q){return !q.lesson});
+  if(S.flt.lesson&&S.flt.lesson!=="__none__"&&les.indexOf(S.flt.lesson)<0)S.flt.lesson="";
   var fg=h("select",{id:"l-grade"});fg.append(h("option",{value:""},"គ្រប់ថ្នាក់"));
   GRADES.forEach(function(g){fg.append(h("option",{value:String(g)},"ថ្នាក់ទី"+kn(g)))});
-  fg.value=S.flt.grade;fg.onchange=function(){S.flt.grade=fg.value;render()};
+  fg.value=S.flt.grade;fg.onchange=function(){S.flt.grade=fg.value;S.flt.subject="";S.flt.lesson="";render()};
   var fs2=h("select",{id:"l-sub"});fs2.append(h("option",{value:""},"គ្រប់មុខវិជ្ជា"));
-  subs.forEach(function(s){fs2.append(h("option",{value:s},s))});
-  fs2.value=S.flt.subject;fs2.onchange=function(){S.flt.subject=fs2.value;render()};
+  subs.forEach(function(x){fs2.append(h("option",{value:x},x))});
+  fs2.value=S.flt.subject;fs2.onchange=function(){S.flt.subject=fs2.value;S.flt.lesson="";render()};
+  var fl=h("select",{id:"l-les"});fl.append(h("option",{value:""},"គ្រប់មេរៀន"));
+  les.forEach(function(x){fl.append(h("option",{value:x},x))});
+  if(hasNone)fl.append(h("option",{value:"__none__"},"(មិនមានឈ្មោះមេរៀន)"));
+  fl.value=S.flt.lesson;fl.onchange=function(){S.flt.lesson=fl.value;render()};
   card.append(h("div",{class:"grid2"},
     h("div",{class:"field"},h("label",{class:"lbl","for":"l-grade"},"ថ្នាក់"),fg),
-    h("div",{class:"field"},h("label",{class:"lbl","for":"l-sub"},"មុខវិជ្ជា"),fs2)));
-  var list=bank.filter(function(q){
-    return(!S.flt.grade||String(q.grade)===S.flt.grade)&&(!S.flt.subject||q.subject===S.flt.subject);
+    h("div",{class:"field"},h("label",{class:"lbl","for":"l-sub"},"មុខវិជ្ជា"),fs2),
+    h("div",{class:"field"},h("label",{class:"lbl","for":"l-les"},"មេរៀន"),fl)));
+  var list=inSub.filter(function(q){
+    return !S.flt.lesson||(S.flt.lesson==="__none__"?!q.lesson:q.lesson===S.flt.lesson);
   });
+  card.append(h("p",{class:"note"},"បង្ហាញ "+kn(list.length)+" / "+kn(bank.length)+" លំហាត់"));
   if(S.isAdmin){
     var row=h("div",{class:"row"});
     if(!bank.length)row.append(h("button",{class:"btn sm",onclick:seedSamples},"បញ្ចូលលំហាត់ឧទាហរណ៍ ២២ ចូលប្រព័ន្ធ"));
