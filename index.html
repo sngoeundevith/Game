@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>ហាត់ QCM</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanuman:wght@400;700&family=Moul&family=Noto+Sans+Khmer:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Moul&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <style>
 :root{
   --bg:#f3f5fa;--surface:#ffffff;--ink:#142040;--muted:#5b6785;--line:#d9dfec;--soft:#e8edf9;
   --accent:#1e4bd2;--accent-ink:#ffffff;--gold:#b8861b;
   --good:#12805c;--good-bg:#dff3ea;--bad:#c23b3b;--bad-bg:#fbe3e3;
-  --f-body:"Noto Sans Khmer","Hanuman",system-ui,sans-serif;
-  --f-display:"Moul","Noto Sans Khmer",serif;color-scheme:light;
+  --f-body:"Battambang",system-ui,sans-serif;
+  --f-display:"Moul","Battambang",serif;color-scheme:light;
 }
 @media (prefers-color-scheme:dark){:root{
   --bg:#0e1426;--surface:#161e36;--ink:#e8ecf8;--muted:#9aa6c6;--line:#2a3558;--soft:#1e2847;
@@ -30,7 +30,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:12px;min-width:0}
-.brand .logo{width:56px;height:56px;border-radius:50%;object-fit:cover;background:#fff;border:2px solid var(--gold);flex:none}
+.brand .logo{width:64px;height:64px;object-fit:contain;flex:none}
 .brand h1{font-family:var(--f-display);font-weight:400;font-size:19px;line-height:1.5;margin:0}
 .brand small{color:var(--muted);display:block;line-height:1.4}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
@@ -457,8 +457,8 @@ function startQuizAgain(){
 }
 
 /* ---------- certificate (canvas) ---------- */
-var F1='Moul,"Noto Sans Khmer",serif';
-var F2='Hanuman,"Noto Sans Khmer",serif';
+var F1='Moul,"Battambang",serif';
+var F2='Battambang,serif';
 function fit(x,t,fam,weight,px,max){
   var s=px;
   do{x.font=weight+" "+s+"px "+fam;s-=2}while(x.measureText(t).width>max&&s>18);
@@ -479,10 +479,10 @@ async function drawCert(r,logo){
   try{
     await Promise.all([
       document.fonts.load('60px Moul',"ក"),
-      document.fonts.load('40px Hanuman',"ក"),
-      document.fonts.load('700 40px Hanuman',"ក")]);
+      document.fonts.load('40px Battambang',"ក"),
+      document.fonts.load('700 40px Battambang',"ក")]);
   }catch(e){}
-  var NAVY="#142040",GOLD="#b8861b",MUTED="#5b6785",BAND="#eceef2";
+  var NAVY="#142040",GOLD="#b8861b",MUTED="#5b6785";
   x.fillStyle="#fffdf8";x.fillRect(0,0,W,H);
   x.strokeStyle=NAVY;x.lineWidth=10;x.strokeRect(50,50,W-100,H-100);
   x.strokeStyle=GOLD;x.lineWidth=3;x.strokeRect(74,74,W-148,H-148);
@@ -493,23 +493,17 @@ async function drawCert(r,logo){
   x.textAlign="center";x.textBaseline="alphabetic";
   var cx=W/2;
 
-  /* Logo (top-left, round) */
+  /* Logo (top-left) - drawn as is, no extra frame */
   if(logo){
-    var LX=240,LY=240,LR=130;
-    x.save();x.beginPath();x.arc(LX,LY,LR,0,Math.PI*2);x.closePath();x.clip();
-    x.fillStyle="#ffffff";x.fillRect(LX-LR,LY-LR,LR*2,LR*2);
+    var LX=240,LY=240,LR=135;
     var sc=Math.min(LR*2/logo.width,LR*2/logo.height);
     var iw=logo.width*sc,ih=logo.height*sc;
     x.drawImage(logo,LX-iw/2,LY-ih/2,iw,ih);
-    x.restore();
-    x.strokeStyle=GOLD;x.lineWidth=5;x.beginPath();x.arc(LX,LY,LR,0,Math.PI*2);x.stroke();
   }
 
-  /* School name on a light band */
+  /* School name */
   if(SCHOOL){
     fit(x,SCHOOL,F1,"400",46,1000);
-    var sw=x.measureText(SCHOOL).width;
-    x.fillStyle=BAND;x.fillRect(cx-sw/2-34,96,sw+68,84);
     x.fillStyle=NAVY;x.fillText(SCHOOL,cx,152);
   }
   x.fillStyle=NAVY;fit(x,"លិខិតបញ្ជាក់",F1,"400",92,1300);x.fillText("លិខិតបញ្ជាក់",cx,285);
@@ -520,7 +514,6 @@ async function drawCert(r,logo){
 
   /* Subject / grade band */
   var lineA="វិញ្ញាសា៖ "+r.subject+"  ថ្នាក់ទី"+kn(r.grade);
-  x.fillStyle=BAND;x.fillRect(cx-560,588,1120,70);
   x.fillStyle=NAVY;fit(x,lineA,F2,"700",40,1060);x.fillText(lineA,cx,634);
   var lineB="មេរៀន៖ "+r.lesson;
   x.fillStyle=NAVY;fit(x,lineB,F2,"400",38,1300);x.fillText(lineB,cx,704);
@@ -1034,7 +1027,7 @@ function tabIO(){
   var ta=h("textarea",{id:"i-text",style:"min-height:200px",placeholder:"សំណួរទី១?\nក. ជម្រើសទី១\nខ. ជម្រើសទី២\nគ. ជម្រើសទី៣\nឃ. ជម្រើសទី៤\nចម្លើយ៖ ខ\nពន្យល់៖ ហេតុផល (មិនចាំបាច់)\n\nសំណួរទី២?\n..."});
   ta.value=I.text;ta.oninput=function(){I.text=ta.value};
   a.append(h("div",{class:"field"},h("label",{class:"lbl","for":"i-text"},"អត្ថបទលំហាត់"),mathBar(ta,true),ta));
-  a.append(h("p",{class:"note"},"សំណួរនីមួយៗបំបែកដោយបន្ទាត់ទទេ។ អាចប្រើ ក ខ គ ឃ ឬ A B C D។ រូបមន្តសរសេរជា $...$ ។"));
+  a.append(h("p",{class:"note"},"សំណួរនីមួយៗបំបែកដោយបន្ទាត់ទទេ។ ជម្រើសចាប់ផ្តើមដោយ «ក.» «ខ.» «គ.» «ឃ.» (ឬ A. B. C. D.)។ បន្ទាត់ចម្លើយសរសេរ «ចម្លើយ៖ ខ» ។ រូបមន្តសរសេរជា $...$ ។"));
   if(S.flash&&S.flash.where==="text")a.append(h("div",{class:"msg "+S.flash.t},S.flash.m));
   a.append(h("div",{class:"row"},h("button",{class:"btn primary",disabled:S.busy,onclick:importText},"បញ្ចូលចូលបញ្ជី")));
   frag.append(a);
@@ -1069,20 +1062,25 @@ async function importText(){
   var subject=I.subject.trim(),lesson=I.lesson.trim();
   if(!subject){S.flash={t:"err",where:"text",m:"សូមបំពេញមុខវិជ្ជាសិន។"};render();return}
   var map={"ក":0,"ខ":1,"គ":2,"ឃ":3,"a":0,"b":1,"c":2,"d":3};
+  var optRe=/^([កខគឃA-Da-d])\s*[\.\)\:។]\s*(.+)$/;
+  var ansRe=/^(ចម្លើយត្រឹមត្រូវ|ចម្លើយ|answer)\s*[:：៖]\s*(\S+)/i;
+  var exRe=/^(ពន្យល់|explain)\s*[:：៖]\s*(.+)$/i;
+  var labelRe=/^(សំណួរ(ទី)?|question)\s*[\d០-៩]*\s*[:：៖\.\)។]?\s*$/i;
   var blocks=I.text.split(/\n\s*\n/),recs=[],skipped=0;
   blocks.forEach(function(blk){
     var lines=blk.split("\n").map(function(l){return l.trim()}).filter(Boolean);
     if(!lines.length)return;
-    var qt=lines[0].replace(/^[\d០-៩]+\s*[\.\)។:]\s*/,"");
-    var opts=[],ans=-1,ex="";
-    lines.slice(1).forEach(function(l){
-      var m=l.match(/^([កខគឃA-Da-d])\s*[\.\)\:។]\s*(.+)$/);
-      var a=l.match(/^(ចម្លើយ|answer)\s*[:：៖]\s*(\S+)/i);
-      var e=l.match(/^(ពន្យល់|explain)\s*[:：៖]\s*(.+)$/i);
-      if(a){var k=a[2].charAt(0).toLowerCase();if(map[k]!=null)ans=map[k]}
-      else if(e)ex=e[2];
-      else if(m)opts.push(m[2].trim());
+    var qlines=[],opts=[],ans=-1,ex="",started=false;
+    lines.forEach(function(l){
+      var a=l.match(ansRe),e=l.match(exRe),m=l.match(optRe);
+      if(a){started=true;var k=a[2].charAt(0).toLowerCase();if(map[k]!=null)ans=map[k]}
+      else if(e){started=true;ex=e[2]}
+      else if(m){started=true;opts.push(m[2].trim())}
+      else if(!started)qlines.push(l);
+      else if(opts.length&&!ex)opts[opts.length-1]+=" "+l;
     });
+    if(qlines.length>1&&labelRe.test(qlines[0]))qlines.shift();
+    var qt=qlines.join("\n").replace(/^[\d០-៩]+\s*[\.\)។:]\s*/,"");
     if(!qt||opts.length<2||ans<0||ans>=opts.length){skipped++;return}
     recs.push({id:uid()+recs.length,grade:I.grade,subject:subject,lesson:lesson,q:qt,options:opts,answer:ans,explain:ex,ownerUid:S.user.uid,by:S.profile.name});
   });
