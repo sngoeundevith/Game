@@ -111,6 +111,21 @@ details.rv summary span{min-width:0;overflow-wrap:anywhere}
 .dlg{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;width:min(720px,100%);display:flex;flex-direction:column;gap:12px}
 .dlg h2{margin:0;font-size:18px}
 math-field{width:100%;font-size:28px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--bg);color:var(--ink)}
+.menu{display:grid;gap:14px}
+.mbtn{display:flex;gap:16px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:18px 22px;cursor:pointer;width:100%}
+.mbtn:hover{border-color:var(--accent)}
+.mbtn .ic{font-size:36px;line-height:1;flex:none}
+.mbtn b{display:block;font-family:var(--f-display);font-weight:400;font-size:20px;line-height:1.6}
+.mbtn span{color:var(--muted);font-size:15px}
+.code{font-family:var(--f-display);font-size:48px;letter-spacing:.18em;text-align:center;background:var(--bg);border:2px dashed var(--accent);border-radius:14px;padding:6px 0 6px .18em}
+.board{display:flex;flex-direction:column;gap:8px}
+.brow{display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:8px 12px}
+.brow.me{border-color:var(--accent);background:var(--soft)}
+.brow .rk{font-weight:700;text-align:center;font-size:20px}
+.brow .nm{min-width:0;overflow-wrap:anywhere}
+.brow .bar{margin-top:4px;height:6px}
+.brow .sc{font-weight:700;white-space:nowrap;text-align:right}
+.plist{display:flex;flex-wrap:wrap;gap:8px}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
 </style>
 </head>
@@ -222,7 +237,7 @@ var SAMPLES=Array.isArray(raw.questions)?raw.questions:[];
 var bank=ONLINE?[]:SAMPLES.slice();
 
 var S={
-  view:"home",teacher:false,tab:"add",
+  view:"menu",teacher:false,tab:"add",bcount:10,bcode:"",bmsg:null,bres:null,
   grade:null,subject:null,lesson:"*",count:10,name:"",run:null,
   form:{grade:4,subject:"",lesson:"",q:"",o:["","","",""],ans:0,explain:"",editId:null},
   flt:{grade:"",subject:"",lesson:""},delId:null,flash:null,
@@ -247,7 +262,8 @@ function errMsg(e){
     "auth/wrong-password":"អ៊ីមែល ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ។",
     "auth/too-many-requests":"ព្យាយាមច្រើនដងពេក។ សូមរង់ចាំបន្តិចសិន។",
     "auth/network-request-failed":"គ្មានអ៊ីនធឺណិត ឬបណ្តាញមានបញ្ហា។",
-    "auth/operation-not-allowed":"Firebase មិនទាន់បើកការចូលដោយ Email/Password ទេ។",
+    "auth/operation-not-allowed":"Firebase មិនទាន់បើកវិធីចូលនេះទេ (Email/Password ឬ Anonymous) ។ មើល README។",
+    "auth/admin-restricted-operation":"Firebase មិនទាន់បើក Anonymous ទេ។ មើល README។",
     "permission-denied":"គ្មានសិទ្ធិធ្វើសកម្មភាពនេះទេ។ (ពិនិត្យ Firestore Rules និងស្ថានភាពគណនី)"
   };
   return m[c]||("មានបញ្ហា៖ "+(c||(e&&e.message)||"មិនស្គាល់"));
@@ -257,35 +273,47 @@ function errMsg(e){
 var app=document.getElementById("app");
 function render(){
   app.textContent="";
-  var inQuiz=S.view==="quiz";
-  var wrap=h("div",{class:"wrap"+(S.teacher&&!inQuiz?" wide":"")});
+  var v=S.view;
+  var hideNav=(v==="quiz"||v==="bplay"||v==="blobby"||v==="menu");
+  var wrap=h("div",{class:"wrap"+(S.teacher&&v==="teacher"?" wide":"")});
   var nav=h("div",{class:"row"});
-  if(!inQuiz){
-    nav.append(h("button",{class:"btn sm",onclick:function(){S.teacher=!S.teacher;S.view=S.teacher?"teacher":"home";S.flash=null;render()}},S.teacher?"ទំព័រសិស្ស":"ផ្នែកគ្រូ"));
+  if(!hideNav){
+    nav.append(h("button",{class:"btn sm",onclick:function(){S.teacher=false;S.view="menu";S.flash=null;render();window.scrollTo(0,0)}},"ទំព័រដើម"));
   }
   wrap.append(h("div",{class:"top"},
     h("div",{class:"brand"},
       h("img",{class:"logo",src:LOGO,alt:"Logo",onerror:function(){this.style.display="none"}}),
       h("div",{},h("h1",{},TITLE),SCHOOL?h("small",{},SCHOOL):null)),
     nav));
-  var v=S.view;
-  if(v==="home")wrap.append(viewHome());
+  if(v==="menu")wrap.append(viewMenu());
+  else if(v==="home")wrap.append(viewHome());
   else if(v==="quiz")wrap.append(viewQuiz());
   else if(v==="result")wrap.append(viewResult());
+  else if(v==="bhome")wrap.append(viewBHome());
+  else if(v==="blobby")wrap.append(viewLobby());
+  else if(v==="bplay")wrap.append(viewBPlay());
+  else if(v==="bres")wrap.append(viewBResult());
   else wrap.append(viewTeacher());
   app.append(wrap);
   if(v==="result")ensureCert();
+  if(v==="bres")ensureCert(S.bres,drawBCert);
+}
+function viewMenu(){
+  function item(ic,t,sub,fn){return h("button",{class:"mbtn",onclick:fn},h("div",{class:"ic"},ic),h("div",{},h("b",{},t),h("span",{},sub)))}
+  var m=h("div",{class:"menu"});
+  m.append(
+    item("📝","លំហាត់ QCM","ហាត់ធ្វើតេស្តម្នាក់ឯង ទទួលបានលិខិតបញ្ជាក់ និងពាន",function(){S.view="home";render()}),
+    item("⚔️","ប្រកួត","ប្រកួតជាមួយមិត្តភក្តិ ពី ២ ដល់ ១០ នាក់ ក្នុងបន្ទប់តែមួយ",function(){S.bmsg=null;S.view="bhome";render()}),
+    item("👩‍🏫","មុខងារគ្រូ","ចុះឈ្មោះ ចូលគណនី និងបន្ថែមលំហាត់",function(){S.teacher=true;S.view="teacher";S.flash=null;render()}));
+  return h("div",{class:"card"},h("h2",{},"សូមជ្រើសរើស"),m);
 }
 
 /* ---------- student: home ---------- */
 function chip(label,count,on,fn){
   return h("button",{class:"chip","aria-pressed":on?"true":"false",onclick:fn},label,count!=null?h("small",{},kn(count)):null);
 }
-function viewHome(){
-  var box=h("div",{class:"card"});
-  box.append(h("h2",{},"ជ្រើសរើសលំហាត់"));
-  if(S.loadingBank){box.append(h("p",{class:"note"},"កំពុងផ្ទុកលំហាត់..."))}
-  else if(S.bankErr){box.append(h("div",{class:"msg err"},S.bankErr),h("div",{class:"row"},h("button",{class:"btn sm",onclick:loadBank},"ព្យាយាមម្តងទៀត")))}
+function picker(box,key,counts,labelFn,title){
+  var avail=0;
   box.append(h("div",{class:"lbl"},"ថ្នាក់"));
   var cg=h("div",{class:"chips"});
   GRADES.forEach(function(g){
@@ -293,7 +321,6 @@ function viewHome(){
     cg.append(chip("ថ្នាក់ទី"+kn(g),n,S.grade===g,function(){S.grade=g;S.subject=null;S.lesson="*";render()}));
   });
   box.append(cg);
-  var avail=0;
   if(S.grade!=null){
     var subs=uniq(bank.filter(function(q){return q.grade===S.grade}).map(function(q){return q.subject}));
     if(!subs.length){
@@ -301,9 +328,9 @@ function viewHome(){
     }else{
       box.append(h("div",{class:"lbl"},"មុខវិជ្ជា"));
       var cs=h("div",{class:"chips"});
-      subs.forEach(function(s){
-        var n=bank.filter(function(q){return q.grade===S.grade&&q.subject===s}).length;
-        cs.append(chip(s,n,S.subject===s,function(){S.subject=s;S.lesson="*";render()}));
+      subs.forEach(function(sj){
+        var n=bank.filter(function(q){return q.grade===S.grade&&q.subject===sj}).length;
+        cs.append(chip(sj,n,S.subject===sj,function(){S.subject=sj;S.lesson="*";render()}));
       });
       box.append(cs);
     }
@@ -320,17 +347,27 @@ function viewHome(){
     });
     box.append(cl);
     avail=pool().length;
-    var okLv=LEVELS.filter(function(n){return avail>=n});
-    if(okLv.length&&okLv.indexOf(S.count)<0)S.count=okLv[okLv.length-1];
-    if(!okLv.length)S.count=10;
-    box.append(h("div",{class:"lbl"},"កម្រិតលំហាត់ (ចំនួនសំណួរ និងពាន)"));
+    var okc=counts.filter(function(n){return avail>=n});
+    if(okc.length&&okc.indexOf(S[key])<0)S[key]=okc[okc.length-1];
+    if(!okc.length)S[key]=counts[0];
+    box.append(h("div",{class:"lbl"},title));
     var cc=h("div",{class:"chips"});
-    LEVELS.forEach(function(n){
-      var on=avail>=n;
-      cc.append(h("button",{class:"chip","aria-pressed":S.count===n&&on?"true":"false",disabled:!on,onclick:function(){S.count=n;render()}},
-        kn(n)+" សំណួរ",h("small",{},TIERS[n].name)));
+    counts.forEach(function(n){
+      var on=avail>=n,lab=labelFn(n);
+      cc.append(h("button",{class:"chip","aria-pressed":S[key]===n&&on?"true":"false",disabled:!on,onclick:function(){S[key]=n;render()}},
+        kn(n)+" សំណួរ",lab?h("small",{},lab):null));
     });
     box.append(cc);
+  }
+  return avail;
+}
+function viewHome(){
+  var box=h("div",{class:"card"});
+  box.append(h("h2",{},"ជ្រើសរើសលំហាត់"));
+  if(S.loadingBank){box.append(h("p",{class:"note"},"កំពុងផ្ទុកលំហាត់..."))}
+  else if(S.bankErr){box.append(h("div",{class:"msg err"},S.bankErr),h("div",{class:"row"},h("button",{class:"btn sm",onclick:loadBank},"ព្យាយាមម្តងទៀត")))}
+  var avail=picker(box,"count",LEVELS,function(n){return TIERS[n].name},"កម្រិតលំហាត់ (ចំនួនសំណួរ និងពាន)");
+  if(S.grade!=null&&S.subject){
     if(avail<S.count)box.append(h("p",{class:"note"},"មេរៀន/មុខវិជ្ជាដែលបានជ្រើសមានលំហាត់ "+kn(avail)+" ប៉ុណ្ណោះ។ ត្រូវមានយ៉ាងតិច ១០ សំណួរ ទើបចាប់ផ្តើមបាន។ សូមជ្រើស «គ្រប់មេរៀន» ឬមុខវិជ្ជាផ្សេង។"));
     else box.append(h("p",{class:"note"},"មាន "+kn(avail)+" លំហាត់។ ឆ្លើយត្រូវយ៉ាងតិច ៥០% ទើបទទួលបាន"+TIERS[S.count].name+"។ បើមិនដល់ ៥០% នៅតែទទួលបានលិខិតចូលរួម តែគ្មានពាន។"));
   }
@@ -623,31 +660,31 @@ async function drawCert(r,logo){
   x.fillStyle=MUTED;x.font="400 28px "+F2;x.fillText("គ្រូបង្រៀន",1410,1118);
   return c;
 }
-async function ensureCert(){
-  var r=S.run;if(!r)return;
+async function ensureCert(rr,drawer){
+  var r=rr||S.run;drawer=drawer||drawCert;if(!r)return;
   var box=document.getElementById("certbox"),act=document.getElementById("certact");
   if(!box)return;
   if(!r.canvas){
     if(r.busy)return;
     r.busy=true;
     var logo=await loadImg(LOGO);
-    try{r.canvas=await drawCert(r,logo);r.certUrl=r.canvas.toDataURL("image/png")}
+    try{r.canvas=await drawer(r,logo);r.certUrl=r.canvas.toDataURL("image/png")}
     catch(e){
-      try{r.canvas=await drawCert(r,null);r.certUrl=r.canvas.toDataURL("image/png")}
+      try{r.canvas=await drawer(r,null);r.certUrl=r.canvas.toDataURL("image/png")}
       catch(e2){r.canvas=null;r.busy=false;box=document.getElementById("certbox");if(box){box.textContent="";box.append(h("div",{class:"msg err"},"មិនអាចបង្កើតលិខិតបញ្ជាក់បានទេ។ សូមសាកល្បងម្តងទៀត។"))}return}
     }
     r.busy=false;
   }
-  if(S.run!==r||!document.getElementById("certbox"))return;
+  if((S.run!==r&&S.bres!==r)||!document.getElementById("certbox"))return;
   box=document.getElementById("certbox");act=document.getElementById("certact");
   box.textContent="";
   box.append(h("img",{src:r.certUrl,alt:"លិខិតបញ្ជាក់របស់ "+r.name}));
   act.textContent="";
-  act.append(h("button",{class:"btn primary",onclick:saveCert},"ទាញយកលិខិតបញ្ជាក់ (រូបភាព PNG)"));
+  act.append(h("button",{class:"btn primary",onclick:function(){saveCert(r)}},"ទាញយកលិខិតបញ្ជាក់ (រូបភាព PNG)"));
 }
-function saveCert(){
-  var r=S.run,msg=document.getElementById("certmsg");
-  if(!r||!r.canvas)return;
+function saveCert(r){
+  var msg=document.getElementById("certmsg");
+  if(!r||!r.canvas||!msg)return;
   msg.textContent="";
   r.canvas.toBlob(function(blob){
     if(!blob){msg.append(h("div",{class:"msg err"},"មិនអាចទាញយកបានទេ។ សូមចុចសង្កត់លើរូបភាព រួចរក្សាទុក។"));return}
@@ -782,9 +819,11 @@ async function loadUsers(){
 }
 if(ONLINE){
   auth.onAuthStateChanged(async function(u){
-    S.user=u;S.profile=null;S.isAdmin=u?isAdminEmail(u.email):false;
-    if(u&&!S.registering)await loadProfile();
-    S.authReady=true;render();
+    var real=(u&&!u.isAnonymous)?u:null;
+    S.user=real;S.profile=null;S.isAdmin=real?isAdminEmail(real.email):false;
+    if(real&&!S.registering)await loadProfile();
+    S.authReady=true;
+    if(!inBattle())render();
   });
   loadBank();
 }
@@ -818,6 +857,469 @@ async function doReset(){
   render();
 }
 function doLogout(){auth.signOut().then(function(){S.users=null;S.tab="add";S.flash=null;render()})}
+
+/* ================= BATTLE (ប្រកួត) ================= */
+var BT=null;
+function inBattle(){return S.view==="blobby"||S.view==="bplay"}
+function btReset(){
+  if(BT){try{if(BT.u1)BT.u1()}catch(e){}try{if(BT.u2)BT.u2()}catch(e){}}
+  BT=null;
+}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms)})}
+async function ensureMe(){
+  for(var i=0;i<30&&!S.authReady;i++)await sleep(100);
+  if(auth.currentUser)return auth.currentUser;
+  try{var c=await auth.signInAnonymously();return c.user}
+  catch(e){
+    if(e&&(e.code==="auth/operation-not-allowed"||e.code==="auth/admin-restricted-operation"))throw{code:"auth/admin-restricted-operation"};
+    throw e;
+  }
+}
+function toLatinDigits(s){return String(s).replace(/[០-៩]/g,function(d){return "០១២៣៤៥៦៧៨៩".indexOf(d)})}
+function batErr(e){
+  var m={
+    "room/not-found":"រកមិនឃើញបន្ទប់ដែលមានលេខកូដនេះទេ។",
+    "room/started":"ការប្រកួតបានចាប់ផ្តើមរួចហើយ មិនអាចចូលបានទេ។",
+    "room/full":"បន្ទប់ពេញហើយ (អតិបរមា ១០ នាក់)។"
+  };
+  return m[e&&e.code]||errMsg(e);
+}
+
+/* ---- menu: create / join ---- */
+function viewBHome(){
+  var frag=document.createDocumentFragment();
+  if(!ONLINE){
+    frag.append(h("div",{class:"card"},h("h2",{},"ការប្រកួត"),h("p",{},"មុខងារប្រកួតត្រូវការ Firebase។ សូមដំឡើងតាម README.md ជាមុនសិន។")));
+    return frag;
+  }
+  var nameIn=h("input",{type:"text",id:"b-name",placeholder:"ឈ្មោះរបស់អ្នក",value:S.name,autocomplete:"name",maxlength:"40"});
+  var who=h("div",{class:"card"},h("h2",{},"ការប្រកួត"),
+    h("p",{class:"note"},"ប្រកួតជាមួយមិត្តភក្តិពី ២ ដល់ ១០ នាក់។ ម្នាក់បង្កើតបន្ទប់ រួចអ្នកផ្សេងចូលដោយប្រើលេខកូដ ៦ ខ្ទង់។ ចម្លើយត្រូវច្រើន និងលឿនជាង ទទួលបានចំណាត់ថ្នាក់ខ្ពស់ជាង។"),
+    h("div",{class:"field"},h("label",{class:"lbl","for":"b-name"},"ឈ្មោះរបស់អ្នក (បង្ហាញលើលិខិត)"),nameIn));
+  if(S.bmsg)who.append(h("div",{class:"msg "+S.bmsg.t},S.bmsg.m));
+  frag.append(who);
+
+  var cr=h("div",{class:"card"});
+  cr.append(h("h2",{},"១. បង្កើតបន្ទប់ថ្មី"));
+  if(S.loadingBank)cr.append(h("p",{class:"note"},"កំពុងផ្ទុកលំហាត់..."));
+  else if(S.bankErr)cr.append(h("div",{class:"msg err"},S.bankErr));
+  var avail=picker(cr,"bcount",LEVELS,function(){return ""},"ចំនួនសំណួរក្នុងការប្រកួត");
+  if(S.grade!=null&&S.subject&&avail<S.bcount)cr.append(h("p",{class:"note"},"មានលំហាត់ "+kn(avail)+" ប៉ុណ្ណោះ។ ត្រូវមានយ៉ាងតិច ១០ សំណួរ។"));
+  var go=h("button",{class:"btn primary",onclick:createRoom},S.busy?"សូមរង់ចាំ...":"បង្កើតបន្ទប់");
+  var jn=null;
+  function upd(){
+    var okName=!!S.name.trim();
+    go.disabled=S.busy||!(okName&&avail>=S.bcount);
+    if(jn)jn.disabled=S.busy||!okName||!/^\d{6}$/.test(toLatinDigits(S.bcode).trim());
+  }
+  cr.append(go);
+  frag.append(cr);
+
+  var jc=h("div",{class:"card"});
+  jc.append(h("h2",{},"២. ចូលបន្ទប់ដែលមានស្រាប់"));
+  var codeIn=h("input",{type:"text",id:"b-code",inputmode:"numeric",maxlength:"6",placeholder:"លេខកូដ ៦ ខ្ទង់",value:S.bcode,autocomplete:"off"});
+  jn=h("button",{class:"btn primary",onclick:joinRoom},"ចូលបន្ទប់");
+  codeIn.oninput=function(){S.bcode=codeIn.value;upd()};
+  codeIn.onkeydown=function(e){if(e.key==="Enter"&&!jn.disabled)joinRoom()};
+  nameIn.oninput=function(){S.name=nameIn.value;upd()};
+  jc.append(h("div",{class:"field"},h("label",{class:"lbl","for":"b-code"},"លេខកូដបន្ទប់"),codeIn),jn);
+  frag.append(jc);
+  upd();
+  return frag;
+}
+async function createRoom(){
+  var name=S.name.trim(),p=pool(),n=S.bcount;
+  if(!name||p.length<n||S.busy)return;
+  S.busy=true;S.bmsg=null;render();
+  var code=null,me=null;
+  try{
+    me=await ensureMe();
+    for(var k=0;k<6&&!code;k++){
+      var c=String(Math.floor(100000+Math.random()*900000)),pl={};
+      pl[me.uid]={name:name};
+      try{
+        await fs.collection("rooms").doc(c).set({host:me.uid,hostName:name,status:"lobby",grade:S.grade,subject:S.subject,
+          lessonKey:S.lesson,lesson:S.lesson==="*"?"រួមគ្រប់មេរៀន":S.lesson,count:n,players:pl,createdAt:ts()});
+        code=c;
+      }catch(e){if(!e||e.code!=="permission-denied")throw e}
+    }
+    if(!code)throw{code:"permission-denied"};
+  }catch(e){S.busy=false;S.bmsg={t:"err",m:batErr(e)};render();return}
+  S.busy=false;
+  btStart(code,me.uid,true);
+}
+async function joinRoom(){
+  var name=S.name.trim(),code=toLatinDigits(S.bcode).trim();
+  if(!name||!/^\d{6}$/.test(code)||S.busy)return;
+  S.busy=true;S.bmsg=null;render();
+  var me=null;
+  try{
+    me=await ensureMe();
+    var ref=fs.collection("rooms").doc(code);
+    await fs.runTransaction(async function(tx){
+      var s=await tx.get(ref);
+      if(!s.exists)throw{code:"room/not-found"};
+      var d=s.data();
+      if(d.status!=="lobby")throw{code:"room/started"};
+      var pl=d.players||{};
+      if(!pl[me.uid]&&Object.keys(pl).length>=10)throw{code:"room/full"};
+      var u={};u["players."+me.uid]={name:name};
+      tx.update(ref,u);
+    });
+  }catch(e){S.busy=false;S.bmsg={t:"err",m:batErr(e)};render();return}
+  S.busy=false;
+  btStart(code,me.uid,false);
+}
+function btStart(code,uid,isHost){
+  btReset();
+  BT={code:code,uid:uid,host:isHost,room:null,prog:{},bv:"lobby",i:0,chosen:null,correct:0,t0:0,timeMs:0,err:null,busy:false,writeErr:null,confirmEnd:false,u1:null,u2:null};
+  var ref=fs.collection("rooms").doc(code);
+  BT.u1=ref.onSnapshot(function(s){
+    if(!BT)return;
+    if(!s.exists){btReset();S.bmsg={t:"err",m:"បន្ទប់ត្រូវបានលុប ឬបិទ។"};S.view="bhome";render();return}
+    BT.room=s.data();btOnRoom();
+  },function(e){
+    if(!BT)return;
+    var m=batErr(e);btReset();S.bmsg={t:"err",m:m};S.view="bhome";render();
+  });
+  BT.u2=ref.collection("progress").onSnapshot(function(sn){
+    if(!BT)return;
+    var m={};sn.forEach(function(d){m[d.id]=d.data()});
+    BT.prog=m;btOnProg();
+  },function(){});
+  S.view="blobby";render();window.scrollTo(0,0);
+}
+function btOnRoom(){
+  var r=BT.room;
+  if(BT.bv==="lobby"&&r.status==="playing"&&r.qs&&r.qs.length){btBegin();return}
+  if(btCheckFinal())return;
+  if(BT.bv==="lobby")render();
+  else btRefresh();
+}
+function btOnProg(){
+  if(!BT)return;
+  if(btCheckFinal())return;
+  if(BT.bv==="play"||BT.bv==="wait")btRefresh();
+}
+function btRefresh(){
+  if(!BT)return;
+  if(BT.bv==="wait"){render();return}
+  var lb=document.getElementById("lb");
+  if(lb){lb.textContent="";lb.append(boardEl(btRows(),BT.uid,(BT.room.qs||[]).length))}
+}
+function btBegin(){
+  BT.bv="play";BT.i=0;BT.chosen=null;BT.correct=0;BT.t0=Date.now();BT.confirmEnd=false;
+  S.view="bplay";
+  btWrite({answered:0,correct:0,finished:false,timeMs:null});
+  render();window.scrollTo(0,0);
+}
+function btWrite(p){
+  var pl=BT.room&&BT.room.players&&BT.room.players[BT.uid];
+  var code=BT.code,uid=BT.uid;
+  return fs.collection("rooms").doc(code).collection("progress").doc(uid)
+    .set(Object.assign({name:pl?pl.name:S.name},p))
+    .then(function(){if(BT)BT.writeErr=null})
+    .catch(function(e){if(BT){BT.writeErr=batErr(e);if(BT.bv==="wait")render()}});
+}
+function btRows(){
+  var pl=BT.room.players||{};
+  var rows=Object.keys(pl).map(function(id){
+    var p=BT.prog[id]||{};
+    return{uid:id,name:pl[id].name,answered:p.answered||0,correct:p.correct||0,finished:!!p.finished,
+      timeMs:(p.finished&&p.timeMs!=null)?p.timeMs:Infinity};
+  });
+  rows.sort(function(a,b){
+    return (b.correct-a.correct)||(a.timeMs-b.timeMs)||(b.answered-a.answered)||String(a.name).localeCompare(String(b.name));
+  });
+  rows.forEach(function(r,i){r.rank=i+1});
+  return rows;
+}
+function btCheckFinal(){
+  if(!BT||BT.bv==="lobby"||BT.bv==="final")return false;
+  var r=BT.room,rows=btRows();
+  var all=rows.length>0&&rows.every(function(x){return x.finished});
+  if(!(all||r.status==="finished"))return false;
+  var me=rows.filter(function(x){return x.uid===BT.uid})[0]||{correct:BT.correct,timeMs:Infinity,rank:rows.length};
+  var tm=me.timeMs===Infinity?(BT.t0?Date.now()-BT.t0:0):me.timeMs;
+  var nq=(r.qs||[]).length;
+  var mine=(r.players[BT.uid]||{}).name||S.name;
+  S.bres={uid:BT.uid,name:mine,rank:me.rank,total:rows.length,correct:me.correct,nq:nq,timeMs:tm,
+    s20:nq?Math.round(me.correct/nq*200)/10:0,
+    id:"BT-"+certId().slice(4),grade:r.grade,subject:r.subject,lesson:r.lesson,host:r.hostName,
+    top:rows.slice(0,3).map(function(x){return x.name}),
+    rows:rows.map(function(x){return{uid:x.uid,name:x.name,correct:x.correct,answered:x.answered,finished:x.finished,timeMs:x.timeMs,rank:x.rank}}),
+    t1:Date.now(),canvas:null,certUrl:null,busy:false};
+  btReset();
+  S.view="bres";render();window.scrollTo(0,0);
+  return true;
+}
+async function btStartGame(){
+  if(!BT||!BT.host||BT.busy)return;
+  var r=BT.room;
+  if(Object.keys(r.players||{}).length<2)return;
+  var p=bank.filter(function(q){return q.grade===r.grade&&q.subject===r.subject&&(r.lessonKey==="*"||q.lesson===r.lessonKey)});
+  if(p.length<r.count){BT.err="លំហាត់មិនគ្រប់ចំនួន។";render();return}
+  var qs=shuffle(p).slice(0,r.count).map(function(q){
+    var idx=shuffle(q.options.map(function(_,i){return i}));
+    return{q:q.q,options:idx.map(function(i){return q.options[i]}),answer:idx.indexOf(q.answer),explain:q.explain||""};
+  });
+  BT.busy=true;BT.err=null;render();
+  try{await fs.collection("rooms").doc(BT.code).update({status:"playing",qs:qs,startedAt:ts()})}
+  catch(e){if(BT){BT.err=batErr(e)}}
+  if(BT){BT.busy=false;if(BT.bv==="lobby")render()}
+}
+async function btEnd(){
+  if(!BT||!BT.host)return;
+  if(!BT.confirmEnd){BT.confirmEnd=true;if(BT.bv==="wait")render();else{var b=document.getElementById("endbtn");if(b)b.textContent="ចុចម្តងទៀតដើម្បីបញ្ចប់ឥឡូវ"}return}
+  try{await fs.collection("rooms").doc(BT.code).update({status:"finished"})}catch(e){if(BT){BT.writeErr=batErr(e);render()}}
+}
+async function btLeave(){
+  if(!BT){S.view="menu";render();return}
+  var code=BT.code,uid=BT.uid,host=BT.host,lobby=BT.bv==="lobby";
+  btReset();
+  S.view="menu";S.bmsg=null;render();window.scrollTo(0,0);
+  if(!lobby)return;
+  try{
+    var ref=fs.collection("rooms").doc(code);
+    if(host)await ref.delete();
+    else{var u={};u["players."+uid]=window.firebase.firestore.FieldValue.delete();await ref.update(u)}
+  }catch(e){}
+}
+
+/* ---- lobby ---- */
+function viewLobby(){
+  var r=BT&&BT.room;
+  var card=h("div",{class:"card"});
+  if(!r){card.append(h("p",{class:"note"},"កំពុងភ្ជាប់បន្ទប់..."));return card}
+  var ids=Object.keys(r.players||{});
+  card.append(h("h2",{},"បន្ទប់ប្រកួត"));
+  card.append(h("div",{class:"code","aria-label":"លេខកូដបន្ទប់"},BT.code));
+  card.append(h("p",{class:"note"},"ប្រាប់លេខកូដនេះទៅមិត្តភក្តិ ដើម្បីចូលបន្ទប់ (ម៉ឺនុយ ប្រកួត → ចូលបន្ទប់)។"));
+  card.append(h("p",{},"ថ្នាក់ទី"+kn(r.grade)+" · "+r.subject+" · "+r.lesson+" · "+kn(r.count)+" សំណួរ"));
+  card.append(h("div",{class:"lbl"},"អ្នកប្រកួត "+kn(ids.length)+" / ១០"));
+  var pl=h("div",{class:"plist"});
+  ids.forEach(function(id){
+    pl.append(h("span",{class:"tag"+(id===BT.uid?" ok":"")},r.players[id].name+(id===r.host?" 👑":"")+(id===BT.uid?" (អ្នក)":"")));
+  });
+  card.append(pl);
+  if(BT.err)card.append(h("div",{class:"msg err"},BT.err));
+  var row=h("div",{class:"row"});
+  if(BT.host){
+    row.append(h("button",{class:"btn primary",disabled:ids.length<2||BT.busy,onclick:btStartGame},BT.busy?"សូមរង់ចាំ...":"ចាប់ផ្តើមប្រកួត"));
+    row.append(h("button",{class:"btn danger",onclick:btLeave},"បោះបង់បន្ទប់"));
+    if(ids.length<2)card.append(h("p",{class:"note"},"ត្រូវមានអ្នកប្រកួតយ៉ាងតិច ២ នាក់ ទើបចាប់ផ្តើមបាន។"));
+  }else{
+    card.append(h("p",{class:"note"},"កំពុងរង់ចាំម្ចាស់បន្ទប់ចាប់ផ្តើមការប្រកួត..."));
+    row.append(h("button",{class:"btn",onclick:btLeave},"ចាកចេញ"));
+  }
+  card.append(row);
+  return card;
+}
+
+/* ---- play ---- */
+function boardEl(rows,meUid,nq){
+  var b=h("div",{class:"board"});
+  rows.forEach(function(x){
+    var w=nq?Math.min(100,x.answered/nq*100):0;
+    b.append(h("div",{class:"brow"+(x.uid===meUid?" me":"")},
+      h("div",{class:"rk"},kn(x.rank)),
+      h("div",{class:"nm"},x.name+(x.finished?" ✓":""),h("div",{class:"bar"},h("i",{style:"width:"+w+"%"}))),
+      h("div",{class:"sc"},kn(x.correct)+" ត្រូវ")));
+  });
+  return b;
+}
+function viewBPlay(){
+  var r=BT.room,qs=r.qs||[],frag=document.createDocumentFragment();
+  if(BT.bv==="wait"){
+    var rows=btRows(),done=rows.filter(function(x){return x.finished}).length;
+    var c=h("div",{class:"card"});
+    c.append(h("h2",{},"អ្នកបានបញ្ចប់ហើយ!"));
+    c.append(h("p",{},"កំពុងរង់ចាំអ្នកផ្សេងឱ្យបញ្ចប់ ("+kn(done)+" / "+kn(rows.length)+" នាក់)។ លទ្ធផល និងលិខិតនឹងចេញដោយស្វ័យប្រវត្តិ។"));
+    if(BT.writeErr){
+      c.append(h("div",{class:"msg err"},"បញ្ជូនលទ្ធផលមិនបាន៖ "+BT.writeErr),
+        h("div",{class:"row"},h("button",{class:"btn",onclick:function(){btWrite({answered:qs.length,correct:BT.correct,finished:true,timeMs:BT.timeMs})}},"ព្យាយាមម្តងទៀត")));
+    }
+    c.append(boardEl(rows,BT.uid,qs.length));
+    if(BT.host)c.append(h("div",{class:"row"},h("button",{class:"btn danger",id:"endbtn",onclick:btEnd},BT.confirmEnd?"ចុចម្តងទៀតដើម្បីបញ្ចប់ឥឡូវ":"បញ្ចប់ការប្រកួតឥឡូវ")));
+    frag.append(c);
+    return frag;
+  }
+  var q=qs[BT.i],last=BT.i===qs.length-1;
+  var card=h("div",{class:"card"});
+  card.append(h("div",{class:"row",style:"justify-content:space-between"},
+    h("span",{class:"lbl"},"សំណួរទី"+kn(BT.i+1)+" / "+kn(qs.length)),
+    h("span",{class:"lbl"},"បន្ទប់ "+BT.code)));
+  card.append(h("div",{class:"bar"},h("i",{style:"width:"+((BT.i+1)/qs.length*100)+"%"})));
+  card.append(h("p",{class:"qtext"},rich(q.q)));
+  var opts=h("div",{class:"opts"});
+  q.options.forEach(function(o,i){
+    opts.append(h("button",{class:"opt","aria-pressed":BT.chosen===i?"true":"false",onclick:function(){BT.chosen=i;render()}},
+      h("b",{},LET[i]),h("span",{},rich(o))));
+  });
+  card.append(opts);
+  card.append(h("div",{class:"row"},h("button",{class:"btn primary",disabled:BT.chosen==null,onclick:btNext},last?"បញ្ចប់":"បន្ទាប់")));
+  card.append(h("p",{class:"note"},"ជ្រើសចម្លើយរួចចុច «"+(last?"បញ្ចប់":"បន្ទាប់")+"»។ មិនអាចត្រឡប់ក្រោយបានទេ។"));
+  if(BT.host)card.append(h("div",{class:"row"},h("button",{class:"btn sm danger",id:"endbtn",onclick:btEnd},BT.confirmEnd?"ចុចម្តងទៀតដើម្បីបញ្ចប់ឥឡូវ":"បញ្ចប់ការប្រកួតសម្រាប់ទាំងអស់គ្នា")));
+  frag.append(card);
+  var lb=h("div",{class:"card"},h("h2",{},"ចំណាត់ថ្នាក់បណ្តោះអាសន្ន"),h("div",{id:"lb"},boardEl(btRows(),BT.uid,qs.length)));
+  frag.append(lb);
+  return frag;
+}
+async function btNext(){
+  if(!BT||BT.chosen==null)return;
+  var qs=BT.room.qs,q=qs[BT.i],last=BT.i===qs.length-1;
+  if(BT.chosen===q.answer)BT.correct++;
+  var done=BT.i+1;
+  if(last){
+    BT.bv="wait";BT.timeMs=Date.now()-BT.t0;
+    render();window.scrollTo(0,0);
+    await btWrite({answered:done,correct:BT.correct,finished:true,timeMs:BT.timeMs});
+  }else{
+    BT.i++;BT.chosen=null;
+    btWrite({answered:done,correct:BT.correct,finished:false,timeMs:null});
+    render();window.scrollTo(0,0);
+  }
+}
+
+/* ---- result ---- */
+function viewBResult(){
+  var r=S.bres,frag=document.createDocumentFragment();
+  var top=h("div",{class:"card"});
+  top.append(h("h2",{},"លទ្ធផលការប្រកួតរបស់ "+r.name));
+  var medal=r.rank===1?"🏆":r.rank===2?"🥈":r.rank===3?"🥉":"🎯";
+  top.append(h("div",{class:"score"},
+    h("div",{class:"ring",style:"--p:"+(r.total>1?Math.round((r.total-r.rank)/(r.total-1)*100):100)},h("div",{},h("div",{},h("strong",{},medal+" "+kn(r.rank))))),
+    h("div",{class:"stats"},
+      stat("ចំណាត់ថ្នាក់","ទី"+kn(r.rank)+" / "+kn(r.total)),
+      stat("ចម្លើយត្រូវ",kn(r.correct)+" / "+kn(r.nq)),
+      stat("ពិន្ទុ",kn(String(r.s20))+" / "+kn(20)),
+      stat("ពេលវេលា",mmss(r.timeMs)))));
+  var msg=r.rank===1?"សូមអបអរសាទរ! អ្នកជាជើងឯកនៃការប្រកួតនេះ!":
+    r.rank<=3?"អស្ចារ្យណាស់! អ្នកស្ថិតក្នុងចំណាត់ថ្នាក់កំពូលទាំងបី!":
+    "អ្នកបានប្រកួតយ៉ាងល្អ! សូមបន្តខិតខំ ដើម្បីឈរលើវេទិកាលើកក្រោយ។";
+  top.append(h("div",{class:"msg ok"},msg));
+  top.append(h("p",{class:"note"},"ថ្នាក់ទី"+kn(r.grade)+" · "+r.subject+" · "+r.lesson));
+  top.append(h("div",{class:"row"},
+    h("button",{class:"btn primary",onclick:function(){S.bres=null;S.bmsg=null;S.view="bhome";render();window.scrollTo(0,0)}},"ប្រកួតម្តងទៀត"),
+    h("button",{class:"btn",onclick:function(){S.bres=null;S.view="menu";render();window.scrollTo(0,0)}},"ទំព័រដើម")));
+  frag.append(top);
+  var lb=h("div",{class:"card"},h("h2",{},"ចំណាត់ថ្នាក់ចុងក្រោយ"),boardEl(r.rows,r.uid,r.nq));
+  frag.append(lb);
+  var cert=h("div",{class:"card cert"});
+  cert.append(h("h2",{},"លិខិតបញ្ជាក់ការប្រកួត"));
+  cert.append(h("div",{id:"certbox"},h("p",{class:"note"},"កំពុងរៀបចំលិខិតបញ្ជាក់...")));
+  cert.append(h("div",{class:"row",id:"certact"}));
+  cert.append(h("div",{id:"certmsg"}));
+  frag.append(cert);
+  return frag;
+}
+
+/* ---- battle certificate (dark navy, medallion with rank) ---- */
+var RANKPAL={
+  1:{c:["#fff0a8","#e0ac1c","#9a6a06"],rib:"#c0392b",lab:"ជើងឯក"},
+  2:{c:["#ffffff","#c3c9d3","#7d8594"],rib:"#2f6fb5",lab:"ជើងឯករងទី១"},
+  3:{c:["#f0b27a","#c47a3a","#7c4a1e"],rib:"#2e8b57",lab:"ជើងឯករងទី២"},
+  0:{c:["#bfe9ff","#4aa3d8","#1d5f93"],rib:"#5b6785",lab:"អ្នកចូលរួមប្រកួត"}
+};
+async function drawBCert(r,logo){
+  var W=1754,H=1240,c=document.createElement("canvas");c.width=W;c.height=H;
+  var x=c.getContext("2d");
+  try{await Promise.all([document.fonts.load('60px Moul',"ក"),document.fonts.load('40px Battambang',"ក"),document.fonts.load('700 40px Battambang',"ក")])}catch(e){}
+  var GOLD="#e7c15a",GOLD2="#b8861b",LIGHT="#eef1fa",SOFT="#aab6d8";
+  var pal=RANKPAL[r.rank<=3?r.rank:0];
+  var bg=x.createLinearGradient(0,0,W,H);bg.addColorStop(0,"#0b1634");bg.addColorStop(.5,"#15295c");bg.addColorStop(1,"#0b1634");
+  x.fillStyle=bg;x.fillRect(0,0,W,H);
+  var MX=420,MY=650,R=165;
+  x.save();x.globalAlpha=.07;x.fillStyle=GOLD;
+  for(var i=0;i<24;i++){var a0=i*Math.PI/12;x.beginPath();x.moveTo(MX,MY);x.arc(MX,MY,1000,a0,a0+Math.PI/24);x.closePath();x.fill()}
+  x.restore();
+  var gl=x.createRadialGradient(MX,MY,60,MX,MY,360);gl.addColorStop(0,"rgba(231,193,90,.30)");gl.addColorStop(1,"rgba(231,193,90,0)");
+  x.fillStyle=gl;x.fillRect(0,0,W,H);
+  x.strokeStyle=GOLD;x.lineWidth=8;x.strokeRect(40,40,W-80,H-80);
+  x.lineWidth=2;x.strokeRect(64,64,W-128,H-128);
+  [[64,64,0],[W-64,64,Math.PI/2],[W-64,H-64,Math.PI],[64,H-64,Math.PI*1.5]].forEach(function(k){
+    x.save();x.translate(k[0],k[1]);x.rotate(k[2]);
+    x.strokeStyle=GOLD;x.lineWidth=3;x.beginPath();x.arc(0,0,44,0,Math.PI/2);x.stroke();
+    x.fillStyle=GOLD;x.beginPath();x.moveTo(0,-14);x.lineTo(14,0);x.lineTo(0,14);x.lineTo(-14,0);x.closePath();x.fill();
+    x.restore();
+  });
+  x.textAlign="center";x.textBaseline="alphabetic";
+  var cx=W/2+60;
+  if(logo){
+    var LS=200,sc=Math.min(LS/logo.width,LS/logo.height),iw=logo.width*sc,ih=logo.height*sc;
+    x.drawImage(logo,215-iw/2,215-ih/2,iw,ih);
+  }
+  if(SCHOOL){x.fillStyle=GOLD;fit(x,SCHOOL,F1,"400",42,960);x.fillText(SCHOOL,cx,150)}
+  x.fillStyle="#ffffff";fit(x,"លិខិតបញ្ជាក់ការប្រកួត",F1,"400",78,1150);x.fillText("លិខិតបញ្ជាក់ការប្រកួត",cx,268);
+  x.fillStyle=SOFT;fit(x,"ការប្រកួតប្រជែងលំហាត់ QCM",F2,"700",40,1100);x.fillText("ការប្រកួតប្រជែងលំហាត់ QCM",cx,335);
+
+  /* medallion */
+  function leaf(px,py,ang,L,Wd){x.save();x.translate(px,py);x.rotate(ang);x.beginPath();x.ellipse(0,0,L,Wd,0,0,Math.PI*2);x.fill();x.restore()}
+  x.fillStyle=pal.c[1];
+  for(var j=0;j<11;j++){
+    var a=Math.PI*(0.56+j*0.092),Rw=R+38,tilt=(j%2?0.55:-0.55);
+    var lx=MX+Rw*Math.cos(a),ly=MY+Rw*Math.sin(a);
+    var th=a+Math.PI/2+tilt;
+    leaf(lx,ly,th,26,9);
+    leaf(2*MX-lx,ly,Math.PI-th,26,9);
+  }
+  x.fillStyle=pal.rib;
+  x.beginPath();x.moveTo(MX-95,MY+105);x.lineTo(MX-25,MY+150);x.lineTo(MX-25,MY+300);x.lineTo(MX-62,MY+270);x.lineTo(MX-100,MY+300);x.closePath();x.fill();
+  x.beginPath();x.moveTo(MX+95,MY+105);x.lineTo(MX+25,MY+150);x.lineTo(MX+25,MY+300);x.lineTo(MX+62,MY+270);x.lineTo(MX+100,MY+300);x.closePath();x.fill();
+  var mg=x.createLinearGradient(MX-R,MY-R,MX+R,MY+R);mg.addColorStop(0,pal.c[0]);mg.addColorStop(.5,pal.c[1]);mg.addColorStop(1,pal.c[2]);
+  x.fillStyle=mg;x.beginPath();x.arc(MX,MY,R,0,Math.PI*2);x.fill();
+  x.fillStyle="#0e1c44";x.beginPath();x.arc(MX,MY,R-28,0,Math.PI*2);x.fill();
+  x.strokeStyle=pal.c[0];x.lineWidth=4;x.beginPath();x.arc(MX,MY,R-28,0,Math.PI*2);x.stroke();
+  if(r.rank===1){
+    x.save();x.translate(MX,MY-R+8);
+    x.fillStyle=mg;x.beginPath();x.moveTo(-62,0);x.lineTo(-70,-58);x.lineTo(-32,-28);x.lineTo(0,-76);x.lineTo(32,-28);x.lineTo(70,-58);x.lineTo(62,0);x.closePath();x.fill();
+    x.fillStyle=pal.c[0];[[-70,-58],[0,-76],[70,-58]].forEach(function(p){x.beginPath();x.arc(p[0],p[1],8,0,Math.PI*2);x.fill()});
+    x.restore();
+  }
+  x.fillStyle=pal.c[0];x.font="700 32px "+F2;x.fillText("ចំណាត់ថ្នាក់ទី",MX,MY-58);
+  x.fillStyle="#ffffff";fit(x,kn(r.rank),F1,"400",150,170);x.fillText(kn(r.rank),MX,MY+52);
+  x.fillStyle=pal.c[0];fit(x,"ក្នុងចំណោម "+kn(r.total)+" នាក់",F2,"700",28,190);x.fillText("ក្នុងចំណោម "+kn(r.total)+" នាក់",MX,MY+98);
+  x.fillStyle=pal.c[0];fit(x,pal.lab,F1,"400",38,380);x.fillText(pal.lab,MX,MY+372);
+
+  /* right column */
+  var cx2=1180;
+  x.fillStyle=SOFT;x.font="400 34px "+F2;x.fillText("ប្រគល់ជូន",cx2,440);
+  x.fillStyle="#ffffff";fit(x,r.name,F1,"400",76,880);x.fillText(r.name,cx2,540);
+  x.strokeStyle=GOLD;x.lineWidth=3;x.beginPath();x.moveTo(cx2-440,572);x.lineTo(cx2+440,572);x.stroke();
+  var s1="ទទួលបានចំណាត់ថ្នាក់ទី "+kn(r.rank);
+  x.fillStyle=GOLD;fit(x,s1,F1,"400",52,880);x.fillText(s1,cx2,650);
+  var s2="ក្នុងចំណោមអ្នកប្រកួតសរុប "+kn(r.total)+" នាក់";
+  x.fillStyle=LIGHT;fit(x,s2,F2,"700",38,880);x.fillText(s2,cx2,712);
+  var s3="វិញ្ញាសា៖ "+r.subject+"  ថ្នាក់ទី"+kn(r.grade)+"  ·  មេរៀន៖ "+r.lesson;
+  x.fillStyle=SOFT;fit(x,s3,F2,"400",32,880);x.fillText(s3,cx2,772);
+  var boxes=[["ចម្លើយត្រូវ",kn(r.correct)+" / "+kn(r.nq)],["ពិន្ទុ",kn(String(r.s20))+" / "+kn(20)],["ពេលវេលា",mmss(r.timeMs)]];
+  var bw=280,gp=30,bx=cx2-(bw*3+gp*2)/2,by=808;
+  boxes.forEach(function(b,i){
+    var px=bx+i*(bw+gp);
+    x.fillStyle="rgba(255,255,255,.07)";x.fillRect(px,by,bw,118);
+    x.strokeStyle=GOLD;x.lineWidth=2;x.strokeRect(px,by,bw,118);
+    x.fillStyle=SOFT;x.font="400 28px "+F2;x.fillText(b[0],px+bw/2,by+40);
+    x.fillStyle="#ffffff";fit(x,b[1],F1,"400",42,bw-30);x.fillText(b[1],px+bw/2,by+94);
+  });
+  /* top 3 */
+  x.fillStyle=SOFT;x.font="400 28px "+F2;x.fillText("កំពូលទាំងបី",cx2,964);
+  var cols=r.top.length,tw=300,tx0=cx2-(tw*cols)/2+tw/2;
+  r.top.forEach(function(nm,i){
+    var cxi=tx0+i*tw,pp=RANKPAL[i+1];
+    var gg=x.createLinearGradient(cxi-22,1000-22,cxi+22,1000+22);gg.addColorStop(0,pp.c[0]);gg.addColorStop(1,pp.c[2]);
+    x.fillStyle=gg;x.beginPath();x.arc(cxi,996,22,0,Math.PI*2);x.fill();
+    x.fillStyle="#0e1c44";x.font="400 22px "+F1;x.fillText(kn(i+1),cxi,1005);
+    x.fillStyle=LIGHT;fit(x,nm,F2,"700",28,tw-30);x.fillText(nm,cxi,1046);
+  });
+  /* footer */
+  x.textAlign="left";x.fillStyle=LIGHT;x.font="400 32px "+F2;x.fillText(khDate(r.t1),170,1118);
+  x.fillStyle=SOFT;x.font="400 26px "+F2;x.fillText("លេខលិខិត៖ "+r.id,170,1160);
+  x.textAlign="center";
+  x.strokeStyle=GOLD;x.lineWidth=2;x.beginPath();x.moveTo(1330,1128);x.lineTo(1630,1128);x.stroke();
+  x.fillStyle=LIGHT;fit(x,r.host,F2,"700",30,290);x.fillText(r.host,1480,1112);
+  x.fillStyle=SOFT;x.font="400 26px "+F2;x.fillText("ម្ចាស់បន្ទប់",1480,1166);
+  return c;
+}
 
 /* ---------- teacher ---------- */
 function viewTeacher(){
