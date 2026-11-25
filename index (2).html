@@ -1,0 +1,1213 @@
+<!doctype html>
+<html lang="km">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ហាត់ QCM</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Moul&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<style>
+:root{
+  --bg:#f3f5fa;--surface:#ffffff;--ink:#142040;--muted:#5b6785;--line:#d9dfec;--soft:#e8edf9;
+  --accent:#1e4bd2;--accent-ink:#ffffff;--gold:#b8861b;
+  --good:#12805c;--good-bg:#dff3ea;--bad:#c23b3b;--bad-bg:#fbe3e3;
+  --f-body:"Battambang",system-ui,sans-serif;
+  --f-display:"Moul","Battambang",serif;color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0e1426;--surface:#161e36;--ink:#e8ecf8;--muted:#9aa6c6;--line:#2a3558;--soft:#1e2847;
+  --accent:#6f93ff;--accent-ink:#0e1426;--gold:#e0b04a;
+  --good:#4cc79a;--good-bg:#12372c;--bad:#ff8a8a;--bad-bg:#3d1c20;color-scheme:dark}}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.75;
+  padding-block:20px 56px;padding-top:max(20px,env(safe-area-inset-top,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+img{max-width:100%}
+.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.wrap.wide{max-width:980px}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand .logo{width:64px;height:64px;object-fit:contain;flex:none}
+.brand h1{font-family:var(--f-display);font-weight:400;font-size:19px;line-height:1.5;margin:0}
+.brand small{color:var(--muted);display:block;line-height:1.4}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.card h2{margin:0;font-size:18px;line-height:1.5}
+.lbl{font-size:14px;color:var(--muted);font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 16px;cursor:pointer;line-height:1.6}
+.chip small{color:var(--muted);margin-left:6px}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chip[aria-pressed="true"] small{color:inherit;opacity:.85}
+.chip:disabled{opacity:.45;cursor:not-allowed}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 18px;cursor:pointer;font-weight:500}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.sm{padding:4px 12px;font-size:14px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.grow{flex:1 1 220px;min-width:0}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+input[type=text],input[type=email],input[type=password],select,textarea{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 12px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:84px}
+.bar{height:8px;background:var(--soft);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .25s}
+.qtext{font-size:20px;line-height:1.7;margin:0;font-weight:500;overflow-wrap:anywhere}
+.rich{white-space:pre-wrap;overflow-wrap:anywhere}
+.rich .katex{font-size:1.08em}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 14px;cursor:pointer;min-width:0;width:100%}
+.opt b{flex:none;width:30px;height:30px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font-size:14px;line-height:1}
+.opt span{flex:1;min-width:0;overflow-wrap:anywhere}
+.opt[aria-pressed="true"]{border-color:var(--accent);background:var(--soft)}
+.opt[aria-pressed="true"] b{background:var(--accent);color:var(--accent-ink)}
+.opt.ok{border-color:var(--good);background:var(--good-bg)}
+.opt.ok b{background:var(--good);color:var(--surface)}
+.opt.no{border-color:var(--bad);background:var(--bad-bg)}
+.opt.no b{background:var(--bad);color:var(--surface)}
+.opt.static{cursor:default}
+.score{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.ring{--p:0;width:132px;height:132px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--accent) calc(var(--p)*1%),var(--soft) 0)}
+.ring div{width:104px;height:104px;border-radius:50%;background:var(--surface);display:grid;place-items:center;text-align:center;line-height:1.2}
+.ring strong{font-family:var(--f-display);font-weight:400;font-size:24px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;flex:1 1 280px}
+.stat{background:var(--bg);border-radius:10px;padding:8px 12px}
+.stat small{display:block;color:var(--muted);line-height:1.5}
+.stat b{font-size:18px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tag{display:inline-block;font-size:13px;line-height:1.6;padding:0 10px;border-radius:99px;background:var(--soft);color:var(--muted)}
+.tag.sample,.tag.no{background:var(--bad-bg);color:var(--bad)}
+.tag.ok{background:var(--good-bg);color:var(--good)}
+.tag.wait{background:#fff1cf;color:#8a5a00}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.qrow{border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.qrow p{margin:0;overflow-wrap:anywhere}
+.qrow ol{margin:0;padding-left:0;list-style:none;display:grid;gap:2px;font-size:15px;color:var(--muted)}
+.qrow li.c{color:var(--good);font-weight:700}
+.note{font-size:14px;color:var(--muted);margin:0}
+.msg{border-radius:10px;padding:8px 14px;background:var(--soft);font-size:15px}
+.msg.err{background:var(--bad-bg);color:var(--bad)}
+.msg.ok{background:var(--good-bg);color:var(--good)}
+.cert img{width:100%;height:auto;border:1px solid var(--line);border-radius:8px;display:block}
+details.rv{border:1px solid var(--line);border-radius:12px;padding:8px 14px}
+details.rv summary{cursor:pointer;display:flex;gap:10px;align-items:flex-start}
+details.rv summary span{min-width:0;overflow-wrap:anywhere}
+.mark{flex:none;font-weight:700}
+.mark.ok{color:var(--good)}.mark.no{color:var(--bad)}
+.pubbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+.radio-row{display:flex;gap:10px;align-items:center}
+.radio-row input[type=radio]{flex:none;width:20px;height:20px;accent-color:var(--accent)}
+.urow{border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.urow .who{min-width:0;overflow-wrap:anywhere}
+.badge{display:inline-grid;place-items:center;min-width:20px;height:20px;border-radius:99px;background:var(--bad);color:#fff;font-size:12px;padding:0 6px;margin-left:6px;line-height:1}
+/* math */
+.mathbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.mathbar .btn.sm{padding:2px 10px}
+.preview{border:1px dashed var(--line);border-radius:10px;padding:6px 12px;font-size:17px}
+.preview:empty{display:none}
+.ov{position:fixed;inset:0;background:rgba(10,16,34,.55);z-index:100;display:flex;align-items:flex-start;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) 16px 16px;overflow:auto}
+.dlg{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;width:min(720px,100%);display:flex;flex-direction:column;gap:12px}
+.dlg h2{margin:0;font-size:18px}
+math-field{width:100%;font-size:28px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--bg);color:var(--ink)}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script src="config.js"></script>
+<script type="application/json" id="bank">{"meta":{"title":"លំហាត់ QCM","org":"","teacher":""},"questions":[
+{"id":"s01","grade":4,"subject":"គណិតវិទ្យា","lesson":"ប្រមាណវិធីបូក និងដក","q":"245 + 138 = ?","options":["373","383","363","483"],"answer":1,"explain":"245 + 138 = 383","sample":true},
+{"id":"s02","grade":4,"subject":"គណិតវិទ្យា","lesson":"ប្រមាណវិធីបូក និងដក","q":"500 − 175 = ?","options":["325","335","425","315"],"answer":0,"explain":"500 − 175 = 325","sample":true},
+{"id":"s03","grade":4,"subject":"គណិតវិទ្យា","lesson":"តារាងគុណ និងចែក","q":"6 × 7 = ?","options":["36","42","48","49"],"answer":1,"explain":"6 × 7 = 42","sample":true},
+{"id":"s04","grade":4,"subject":"គណិតវិទ្យា","lesson":"តារាងគុណ និងចែក","q":"56 ÷ 8 = ?","options":["6","7","8","9"],"answer":1,"explain":"8 × 7 = 56 ដូច្នេះ 56 ÷ 8 = 7","sample":true},
+{"id":"s05","grade":4,"subject":"ភាសាខ្មែរ","lesson":"ព្យញ្ជនៈ និងស្រៈ","q":"អក្ខរក្រមខ្មែរមានព្យញ្ជនៈប៉ុន្មានតួ?","options":["២៥ តួ","៣៣ តួ","៣៥ តួ","២៣ តួ"],"answer":1,"explain":"ព្យញ្ជនៈខ្មែរមាន ៣៣ តួ។","sample":true},
+{"id":"s06","grade":4,"subject":"ភាសាខ្មែរ","lesson":"ព្យញ្ជនៈ និងស្រៈ","q":"តើតួអក្សរមួយណាជាស្រៈពេញតួ?","options":["ឥ","ក","ខ","គ"],"answer":0,"explain":"ឥ ជាស្រៈពេញតួ។ ក ខ គ ជាព្យញ្ជនៈ។","sample":true},
+{"id":"s07","grade":5,"subject":"វិទ្យាសាស្ត្រ","lesson":"រាងកាយមនុស្ស","q":"សរីរាង្គអ្វីដែលបូមឈាមទៅគ្រប់ផ្នែកនៃរាងកាយ?","options":["បេះដូង","សួត","ថ្លើម","ក្រពះ"],"answer":0,"explain":"បេះដូងបូមឈាមឱ្យរត់ទៅគ្រប់ផ្នែកនៃរាងកាយ។","sample":true},
+{"id":"s08","grade":5,"subject":"វិទ្យាសាស្ត្រ","lesson":"រាងកាយមនុស្ស","q":"សរីរាង្គអ្វីដែលជួយឱ្យយើងដកដង្ហើម?","options":["បេះដូង","សួត","តម្រងនោម","ក្រពះ"],"answer":1,"explain":"សួតស្រូបអុកស៊ីសែន និងបញ្ចេញកាបូនឌីអុកស៊ីត។","sample":true},
+{"id":"s09","grade":6,"subject":"ភូមិវិទ្យា","lesson":"ប្រទេសកម្ពុជា","q":"រាជធានីនៃព្រះរាជាណាចក្រកម្ពុជាគឺជាទីក្រុងអ្វី?","options":["សៀមរាប","ភ្នំពេញ","បាត់ដំបង","កំពត"],"answer":1,"explain":"រាជធានីភ្នំពេញជារាជធានីនៃកម្ពុជា។","sample":true},
+{"id":"s10","grade":6,"subject":"ភូមិវិទ្យា","lesson":"ប្រទេសកម្ពុជា","q":"ភ្នំណាខ្ពស់ជាងគេនៅកម្ពុជា?","options":["ភ្នំគូលែន","ភ្នំឱរ៉ាល់","ភ្នំបូកគោ","ភ្នំដំរី"],"answer":1,"explain":"ភ្នំឱរ៉ាល់ ខ្ពស់ប្រមាណ ១៨១៣ ម៉ែត្រ។","sample":true},
+{"id":"s11","grade":7,"subject":"ប្រវត្តិវិទ្យា","lesson":"សម័យអង្គរ","q":"ប្រាសាទអង្គរវត្តត្រូវបានកសាងឡើងក្នុងរជ្ជកាលព្រះបាទអ្វី?","options":["ជ័យវរ្ម័នទី៧","សូរ្យវរ្ម័នទី២","ឥន្ទ្រវរ្ម័នទី១","យសោវរ្ម័នទី១"],"answer":1,"explain":"ព្រះបាទសូរ្យវរ្ម័នទី២ ទ្រង់កសាងអង្គរវត្តក្នុងសតវត្សទី១២។","sample":true},
+{"id":"s12","grade":7,"subject":"ប្រវត្តិវិទ្យា","lesson":"សម័យអង្គរ","q":"ប្រាសាទបាយ័នត្រូវបានកសាងឡើងក្នុងរជ្ជកាលព្រះបាទអ្វី?","options":["ជ័យវរ្ម័នទី៧","សូរ្យវរ្ម័នទី២","ឥន្ទ្រវរ្ម័នទី១","យសោវរ្ម័នទី១"],"answer":0,"explain":"ប្រាសាទបាយ័នជាស្នាព្រះហស្តព្រះបាទជ័យវរ្ម័នទី៧។","sample":true},
+{"id":"s13","grade":8,"subject":"គណិតវិទ្យា","lesson":"សមីការដឺក្រេទី១","q":"ដោះស្រាយសមីការ 2x + 6 = 14 បាន x = ?","options":["3","4","5","10"],"answer":1,"explain":"2x = 14 − 6 = 8 ដូច្នេះ x = 4","sample":true},
+{"id":"s14","grade":8,"subject":"គណិតវិទ្យា","lesson":"សមីការដឺក្រេទី១","q":"ដោះស្រាយសមីការ 3x − 5 = 10 បាន x = ?","options":["3","4","5","15"],"answer":2,"explain":"3x = 15 ដូច្នេះ x = 5","sample":true},
+{"id":"s15","grade":9,"subject":"វិទ្យាសាស្ត្រ","lesson":"ធាតុគីមី និងសមាសធាតុ","q":"រូបមន្តគីមីនៃទឹកគឺអ្វី?","options":["CO₂","H₂O","O₂","NaCl"],"answer":1,"explain":"ម៉ូលេគុលទឹកមានអ៊ីដ្រូសែន ២ អាតូម និងអុកស៊ីសែន ១ អាតូម។","sample":true},
+{"id":"s16","grade":9,"subject":"វិទ្យាសាស្ត្រ","lesson":"រស្មីសំយោគ","q":"រុក្ខជាតិស្រូបយកឧស្ម័នអ្វីក្នុងដំណើរការរស្មីសំយោគ?","options":["អុកស៊ីសែន","អាសូត","កាបូនឌីអុកស៊ីត","អ៊ីដ្រូសែន"],"answer":2,"explain":"រុក្ខជាតិប្រើ CO₂ ទឹក និងពន្លឺ ដើម្បីផលិតស្ករ និងអុកស៊ីសែន។","sample":true},
+{"id":"s17","grade":10,"subject":"រូបវិទ្យា","lesson":"មេកានិច","q":"ឯកតានៃកម្លាំងក្នុងប្រព័ន្ធ SI គឺអ្វី?","options":["ជូល","ញូតុន","វ៉ាត់","ប៉ាស្កាល់"],"answer":1,"explain":"កម្លាំងវាស់ជាញូតុន (N)។","sample":true},
+{"id":"s18","grade":10,"subject":"រូបវិទ្យា","lesson":"មេកានិច","q":"រថយន្តមួយធ្វើដំណើរបាន 120 km ក្នុងរយៈពេល 2 h។ ល្បឿនមធ្យមគឺប៉ុន្មាន?","options":["40 km/h","50 km/h","60 km/h","240 km/h"],"answer":2,"explain":"v = d / t = 120 / 2 = 60 km/h","sample":true},
+{"id":"s19","grade":11,"subject":"គណិតវិទ្យា","lesson":"ដេរីវេ","q":"ដេរីវេនៃអនុគមន៍ $f(x)=x^{2}$ គឺអ្វី?","options":["$x$","$2x$","$x^{2}$","$2$"],"answer":1,"explain":"(xⁿ)′ = n·xⁿ⁻¹ ដូច្នេះ (x²)′ = 2x","sample":true},
+{"id":"s20","grade":11,"subject":"គណិតវិទ្យា","lesson":"ដេរីវេ","q":"ដេរីវេនៃអនុគមន៍ f(x) = 5x³ គឺអ្វី?","options":["5x²","15x²","15x³","3x²"],"answer":1,"explain":"(5x³)′ = 5 · 3x² = 15x²","sample":true},
+{"id":"s21","grade":12,"subject":"គណិតវិទ្យា","lesson":"លីមីត","q":"តម្លៃនៃ $\\lim_{x\\to 0}\\frac{\\sin x}{x}$ ស្មើនឹងប៉ុន្មាន?","options":["$0$","$1$","$\\infty$","$-1$"],"answer":1,"explain":"នេះជាលីមីតគួរឱ្យចាំ ដែលស្មើ 1។","sample":true},
+{"id":"s22","grade":12,"subject":"គណិតវិទ្យា","lesson":"អាំងតេក្រាល","q":"$\\int 2x\\,dx=?$","options":["$x^{2}+C$","$2+C$","$x+C$","$2x^{2}+C$"],"answer":0,"explain":"ព្រោះ (x²)′ = 2x ដូច្នេះ ∫ 2x dx = x² + C","sample":true}
+]}</script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+(function(){
+"use strict";
+var CFG=window.APP_CONFIG||{};
+var SCHOOL=CFG.schoolName||"";
+var LOGO=CFG.logo||"logo.png";
+var TITLE="លំហាត់ QCM";
+var SUGGEST=["ភាសាខ្មែរ","គណិតវិទ្យា","វិទ្យាសាស្ត្រ","ប្រវត្តិវិទ្យា","ភូមិវិទ្យា","អង់គ្លេស","រូបវិទ្យា","គីមីវិទ្យា","ជីវវិទ្យា","សីលធម៌-ពលរដ្ឋ"];
+var LET=["ក","ខ","គ","ឃ"];
+var LEVELS=[10,30,50,100];
+var TIERS={
+  10:{name:"ពានសំរឹទ្ធ",lv:"កម្រិតទី១",c:["#f0b27a","#c47a3a","#7c4a1e"],ink:"#8a5426",k:1.0,y:140},
+  30:{name:"ពានប្រាក់",lv:"កម្រិតទី២",c:["#ffffff","#c3c9d3","#7d8594"],ink:"#5d6675",k:1.1,y:140},
+  50:{name:"ពានមាស",lv:"កម្រិតទី៣",c:["#fff0a8","#e0ac1c","#9a6a06"],ink:"#a77605",k:1.2,y:140},
+  100:{name:"ពានពេជ្រ",lv:"កម្រិតទី៤",c:["#e2f8ff","#58bbea","#1d6aa5"],ink:"#1d6aa5",k:1.2,y:172}
+};
+function tierOf(n){return n>=100?100:n>=50?50:n>=30?30:10}
+var MONTHS=["មករា","កុម្ភៈ","មីនា","មេសា","ឧសភា","មិថុនា","កក្កដា","សីហា","កញ្ញា","តុលា","វិច្ឆិកា","ធ្នូ"];
+var GRADES=[4,5,6,7,8,9,10,11,12];
+
+function kn(s){return String(s).replace(/\d/g,function(d){return "០១២៣៤៥៦៧៨៩"[d]})}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function uid(){return "q"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function uniq(a){return a.filter(function(v,i){return a.indexOf(v)===i})}
+function h(tag,props){
+  var e=document.createElement(tag);props=props||{};
+  Object.keys(props).forEach(function(k){
+    var v=props[k];if(v==null||v===false)return;
+    if(k==="class")e.className=v;
+    else if(k.indexOf("on")===0)e[k]=v;
+    else if(k==="value")e.value=v;
+    else if(k==="checked")e.checked=true;
+    else if(k==="disabled")e.disabled=true;
+    else e.setAttribute(k,v===true?"":v);
+  });
+  for(var i=2;i<arguments.length;i++){add(e,arguments[i])}
+  return e;
+}
+function add(e,c){
+  if(c==null||c===false)return;
+  if(Array.isArray(c)){c.forEach(function(x){add(e,x)});return}
+  e.append(c.nodeType?c:document.createTextNode(String(c)));
+}
+
+/* ---------- math rendering: text with $latex$ ---------- */
+function mathNode(latex){
+  var s=document.createElement("span");
+  if(window.katex){try{window.katex.render(latex,s,{throwOnError:false});return s}catch(e){}}
+  s.textContent="$"+latex+"$";return s;
+}
+function rich(t){
+  var e=document.createElement("span");e.className="rich";
+  String(t==null?"":t).split(/(\$[^$]+\$)/g).forEach(function(p){
+    if(!p)return;
+    if(/^\$[^$]+\$$/.test(p))e.append(mathNode(p.slice(1,-1)));
+    else e.append(document.createTextNode(p));
+  });
+  return e;
+}
+
+/* ---------- data / firebase ---------- */
+var FBC=CFG.firebase||{};
+var ONLINE=!!(window.firebase&&FBC.apiKey&&FBC.projectId);
+var auth=null,fs=null;
+if(ONLINE){
+  try{window.firebase.initializeApp(FBC);auth=window.firebase.auth();fs=window.firebase.firestore()}
+  catch(e){ONLINE=false}
+}
+function ts(){return window.firebase.firestore.FieldValue.serverTimestamp()}
+function isAdminEmail(m){return !!CFG.adminEmail&&String(m||"").toLowerCase()===String(CFG.adminEmail).toLowerCase()}
+
+var raw;try{raw=JSON.parse(document.getElementById("bank").textContent)}catch(e){raw={}}
+var SAMPLES=Array.isArray(raw.questions)?raw.questions:[];
+var bank=ONLINE?[]:SAMPLES.slice();
+
+var S={
+  view:"home",teacher:false,tab:"add",
+  grade:null,subject:null,lesson:"*",count:10,name:"",run:null,
+  form:{grade:4,subject:"",lesson:"",q:"",o:["","","",""],ans:0,explain:"",editId:null},
+  flt:{grade:"",subject:"",lesson:""},delId:null,flash:null,
+  imp:{grade:4,subject:"",lesson:"",text:"",json:""},
+  loadingBank:ONLINE,bankErr:null,
+  authReady:!ONLINE,user:null,profile:null,isAdmin:false,registering:false,busy:false,
+  authMode:"login",authForm:{name:"",email:"",pw:""},authMsg:null,
+  users:null,usersErr:null
+};
+
+function pool(){
+  return bank.filter(function(q){return q.grade===S.grade&&q.subject===S.subject&&(S.lesson==="*"||q.lesson===S.lesson)});
+}
+function errMsg(e){
+  var c=e&&e.code||"";
+  var m={
+    "auth/email-already-in-use":"អ៊ីមែលនេះត្រូវបានប្រើរួចហើយ។",
+    "auth/invalid-email":"ទម្រង់អ៊ីមែលមិនត្រឹមត្រូវ។",
+    "auth/weak-password":"ពាក្យសម្ងាត់ខ្សោយពេក (យ៉ាងតិច ៦ តួ)។",
+    "auth/invalid-credential":"អ៊ីមែល ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ។",
+    "auth/user-not-found":"អ៊ីមែល ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ។",
+    "auth/wrong-password":"អ៊ីមែល ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ។",
+    "auth/too-many-requests":"ព្យាយាមច្រើនដងពេក។ សូមរង់ចាំបន្តិចសិន។",
+    "auth/network-request-failed":"គ្មានអ៊ីនធឺណិត ឬបណ្តាញមានបញ្ហា។",
+    "auth/operation-not-allowed":"Firebase មិនទាន់បើកការចូលដោយ Email/Password ទេ។",
+    "permission-denied":"គ្មានសិទ្ធិធ្វើសកម្មភាពនេះទេ។ (ពិនិត្យ Firestore Rules និងស្ថានភាពគណនី)"
+  };
+  return m[c]||("មានបញ្ហា៖ "+(c||(e&&e.message)||"មិនស្គាល់"));
+}
+
+/* ---------- shell ---------- */
+var app=document.getElementById("app");
+function render(){
+  app.textContent="";
+  var inQuiz=S.view==="quiz";
+  var wrap=h("div",{class:"wrap"+(S.teacher&&!inQuiz?" wide":"")});
+  var nav=h("div",{class:"row"});
+  if(!inQuiz){
+    nav.append(h("button",{class:"btn sm",onclick:function(){S.teacher=!S.teacher;S.view=S.teacher?"teacher":"home";S.flash=null;render()}},S.teacher?"ទំព័រសិស្ស":"ផ្នែកគ្រូ"));
+  }
+  wrap.append(h("div",{class:"top"},
+    h("div",{class:"brand"},
+      h("img",{class:"logo",src:LOGO,alt:"Logo",onerror:function(){this.style.display="none"}}),
+      h("div",{},h("h1",{},TITLE),SCHOOL?h("small",{},SCHOOL):null)),
+    nav));
+  var v=S.view;
+  if(v==="home")wrap.append(viewHome());
+  else if(v==="quiz")wrap.append(viewQuiz());
+  else if(v==="result")wrap.append(viewResult());
+  else wrap.append(viewTeacher());
+  app.append(wrap);
+  if(v==="result")ensureCert();
+}
+
+/* ---------- student: home ---------- */
+function chip(label,count,on,fn){
+  return h("button",{class:"chip","aria-pressed":on?"true":"false",onclick:fn},label,count!=null?h("small",{},kn(count)):null);
+}
+function viewHome(){
+  var box=h("div",{class:"card"});
+  box.append(h("h2",{},"ជ្រើសរើសលំហាត់"));
+  if(S.loadingBank){box.append(h("p",{class:"note"},"កំពុងផ្ទុកលំហាត់..."))}
+  else if(S.bankErr){box.append(h("div",{class:"msg err"},S.bankErr),h("div",{class:"row"},h("button",{class:"btn sm",onclick:loadBank},"ព្យាយាមម្តងទៀត")))}
+  box.append(h("div",{class:"lbl"},"ថ្នាក់"));
+  var cg=h("div",{class:"chips"});
+  GRADES.forEach(function(g){
+    var n=bank.filter(function(q){return q.grade===g}).length;
+    cg.append(chip("ថ្នាក់ទី"+kn(g),n,S.grade===g,function(){S.grade=g;S.subject=null;S.lesson="*";render()}));
+  });
+  box.append(cg);
+  var avail=0;
+  if(S.grade!=null){
+    var subs=uniq(bank.filter(function(q){return q.grade===S.grade}).map(function(q){return q.subject}));
+    if(!subs.length){
+      box.append(h("p",{class:"note"},"ថ្នាក់នេះមិនទាន់មានលំហាត់ទេ។ សូមជ្រើសថ្នាក់ផ្សេង ឬឱ្យគ្រូបន្ថែមលំហាត់។"));
+    }else{
+      box.append(h("div",{class:"lbl"},"មុខវិជ្ជា"));
+      var cs=h("div",{class:"chips"});
+      subs.forEach(function(s){
+        var n=bank.filter(function(q){return q.grade===S.grade&&q.subject===s}).length;
+        cs.append(chip(s,n,S.subject===s,function(){S.subject=s;S.lesson="*";render()}));
+      });
+      box.append(cs);
+    }
+  }
+  if(S.grade!=null&&S.subject){
+    var base=bank.filter(function(q){return q.grade===S.grade&&q.subject===S.subject});
+    var ls=uniq(base.map(function(q){return q.lesson}));
+    box.append(h("div",{class:"lbl"},"មេរៀន"));
+    var cl=h("div",{class:"chips"});
+    cl.append(chip("គ្រប់មេរៀន",base.length,S.lesson==="*",function(){S.lesson="*";render()}));
+    ls.forEach(function(l){
+      var n=base.filter(function(q){return q.lesson===l}).length;
+      cl.append(chip(l||"(មិនមានឈ្មោះមេរៀន)",n,S.lesson===l,function(){S.lesson=l;render()}));
+    });
+    box.append(cl);
+    avail=pool().length;
+    var okLv=LEVELS.filter(function(n){return avail>=n});
+    if(okLv.length&&okLv.indexOf(S.count)<0)S.count=okLv[okLv.length-1];
+    if(!okLv.length)S.count=10;
+    box.append(h("div",{class:"lbl"},"កម្រិតលំហាត់ (ចំនួនសំណួរ និងពាន)"));
+    var cc=h("div",{class:"chips"});
+    LEVELS.forEach(function(n){
+      var on=avail>=n;
+      cc.append(h("button",{class:"chip","aria-pressed":S.count===n&&on?"true":"false",disabled:!on,onclick:function(){S.count=n;render()}},
+        kn(n)+" សំណួរ",h("small",{},TIERS[n].name)));
+    });
+    box.append(cc);
+    if(avail<S.count)box.append(h("p",{class:"note"},"មេរៀន/មុខវិជ្ជាដែលបានជ្រើសមានលំហាត់ "+kn(avail)+" ប៉ុណ្ណោះ។ ត្រូវមានយ៉ាងតិច ១០ សំណួរ ទើបចាប់ផ្តើមបាន។ សូមជ្រើស «គ្រប់មេរៀន» ឬមុខវិជ្ជាផ្សេង។"));
+    else box.append(h("p",{class:"note"},"មាន "+kn(avail)+" លំហាត់។ ឆ្លើយត្រូវយ៉ាងតិច ៥០% ទើបទទួលបាន"+TIERS[S.count].name+"។ បើមិនដល់ ៥០% នៅតែទទួលបានលិខិតចូលរួម តែគ្មានពាន។"));
+  }
+  var nameIn=h("input",{type:"text",id:"stu-name",placeholder:"ឈ្មោះពេញរបស់អ្នក",value:S.name,autocomplete:"name",maxlength:"60"});
+  var go=h("button",{class:"btn primary",disabled:!(avail>=S.count&&S.name.trim()),onclick:startQuiz},"ចាប់ផ្តើមលំហាត់");
+  nameIn.oninput=function(){S.name=nameIn.value;go.disabled=!(avail>=S.count&&S.name.trim())};
+  var who=h("div",{class:"card"},
+    h("h2",{},"ព័ត៌មានរបស់អ្នក"),
+    h("div",{class:"field"},h("label",{class:"lbl","for":"stu-name"},"ឈ្មោះសិស្ស"),nameIn),
+    h("p",{class:"note"},"ឈ្មោះនេះនឹងបង្ហាញលើលិខិតបញ្ជាក់។ សូមសរសេរឱ្យត្រឹមត្រូវ។"),
+    go);
+  var frag=document.createDocumentFragment();
+  frag.append(box,who);
+  return frag;
+}
+
+/* ---------- student: quiz ---------- */
+function certId(){
+  var d=new Date();
+  return "QCM-"+String(d.getFullYear()).slice(2)+("0"+(d.getMonth()+1)).slice(-2)+("0"+d.getDate()).slice(-2)+"-"+Math.random().toString(36).slice(2,6).toUpperCase();
+}
+function startQuiz(){
+  var p=pool();var n=S.count;if(p.length<n||!S.name.trim())return;
+  var picked=shuffle(p).slice(0,n);
+  var qs=picked.map(function(q){
+    var idx=shuffle(q.options.map(function(_,i){return i}));
+    return{q:q.q,options:idx.map(function(i){return q.options[i]}),answer:idx.indexOf(q.answer),explain:q.explain||"",chosen:null};
+  });
+  var by=uniq(picked.map(function(q){return q.by||""}));
+  S.run={qs:qs,i:0,t0:Date.now(),confirm:false,id:certId(),grade:S.grade,subject:S.subject,
+    lesson:S.lesson==="*"?"រួមគ្រប់មេរៀន":S.lesson,name:S.name.trim(),
+    teacher:by.length===1?by[0]:"",certUrl:null,canvas:null,busy:false};
+  S.view="quiz";render();window.scrollTo(0,0);
+}
+function viewQuiz(){
+  var r=S.run,q=r.qs[r.i],last=r.i===r.qs.length-1;
+  var answered=r.qs.filter(function(x){return x.chosen!=null}).length;
+  var card=h("div",{class:"card"});
+  card.append(h("div",{class:"row",style:"justify-content:space-between"},
+    h("span",{class:"lbl"},"សំណួរទី"+kn(r.i+1)+" / "+kn(r.qs.length)),
+    h("span",{class:"lbl"},"បានឆ្លើយ "+kn(answered))));
+  card.append(h("div",{class:"bar"},h("i",{style:"width:"+((r.i+1)/r.qs.length*100)+"%"})));
+  card.append(h("p",{class:"qtext"},rich(q.q)));
+  var opts=h("div",{class:"opts"});
+  q.options.forEach(function(o,i){
+    opts.append(h("button",{class:"opt","aria-pressed":q.chosen===i?"true":"false",onclick:function(){q.chosen=i;r.confirm=false;render()}},
+      h("b",{},LET[i]),h("span",{},rich(o))));
+  });
+  card.append(opts);
+  var nav=h("div",{class:"row",style:"justify-content:space-between"});
+  nav.append(h("button",{class:"btn",disabled:r.i===0,onclick:function(){r.i--;r.confirm=false;render()}},"ថយក្រោយ"));
+  if(!last)nav.append(h("button",{class:"btn primary",onclick:function(){r.i++;r.confirm=false;render()}},"បន្ទាប់"));
+  else nav.append(h("button",{class:"btn primary",onclick:function(){
+    if(answered<r.qs.length&&!r.confirm){r.confirm=true;render()}else finish();
+  }},"បញ្ជូនចម្លើយ"));
+  card.append(nav);
+  if(r.confirm){
+    card.append(h("div",{class:"msg err"},"នៅសល់ "+kn(r.qs.length-answered)+" សំណួរដែលមិនទាន់ឆ្លើយ។ ចុច «បញ្ជូនចម្លើយ» ម្តងទៀតដើម្បីបញ្ចប់ ឬជ្រើសសំណួរមុនៗដើម្បីបំពេញ។"));
+    var jump=h("div",{class:"chips"});
+    r.qs.forEach(function(x,i){
+      if(x.chosen==null)jump.append(h("button",{class:"chip",onclick:function(){r.i=i;r.confirm=false;render()}},"ទី"+kn(i+1)));
+    });
+    card.append(jump);
+  }
+  return card;
+}
+function rating(p){
+  if(p>=90)return"ល្អប្រសើរ";
+  if(p>=80)return"ល្អណាស់";
+  if(p>=65)return"ល្អ";
+  if(p>=50)return"ល្អបង្គួរ";
+  return"ត្រូវខិតខំបន្ថែម";
+}
+function mmss(ms){
+  var t=Math.max(0,Math.round(ms/1000)),m=Math.floor(t/60),sec=t%60;
+  if(m===0)return kn(sec)+" វិនាទី";
+  return kn(m)+" នាទី"+(sec?" "+kn(sec)+" វិនាទី":"");
+}
+function finish(){
+  var r=S.run;
+  r.t1=Date.now();
+  r.correct=r.qs.filter(function(x){return x.chosen===x.answer}).length;
+  r.total=r.qs.length;
+  r.pct=Math.round(r.correct/r.total*100);
+  r.pass=r.correct*2>=r.total;
+  r.s20=Math.round(r.correct/r.total*200)/10;
+  S.view="result";render();window.scrollTo(0,0);
+}
+
+/* ---------- student: result ---------- */
+function stat(l,v){return h("div",{class:"stat"},h("small",{},l),h("b",{},v))}
+function viewResult(){
+  var r=S.run;
+  var frag=document.createDocumentFragment();
+  var top=h("div",{class:"card"});
+  top.append(h("h2",{},"លទ្ធផលរបស់ "+r.name));
+  top.append(h("div",{class:"score"},
+    h("div",{class:"ring",style:"--p:"+r.pct},h("div",{},h("div",{},h("strong",{},kn(r.pct)+"%")))),
+    h("div",{class:"stats"},
+      stat("ចម្លើយត្រូវ",kn(r.correct)+" / "+kn(r.total)),
+      stat("ពិន្ទុ",kn(String(r.s20))+" / "+kn(20)),
+      stat("ការវាយតម្លៃ",rating(r.pct)),
+      stat("ពាន",r.pass?TIERS[tierOf(r.total)].name:"មិនទាន់ទទួលបាន"),
+      stat("ពេលវេលា",mmss(r.t1-r.t0)))));
+  if(r.pass){
+    top.append(h("div",{class:"msg ok"},"🎉 សូមអបអរសាទរ! អ្នកឆ្លើយត្រូវ "+kn(r.pct)+"% ហើយទទួលបាន"+TIERS[tierOf(r.total)].name+" ("+TIERS[tierOf(r.total)].lv+")។ សូមបន្តខិតខំឱ្យបានល្អបន្ថែមទៀត!"));
+  }else{
+    var need=Math.ceil(r.total/2)-r.correct;
+    top.append(h("div",{class:"msg"},
+      h("b",{},"កុំបោះបង់! អ្នកអាចធ្វើបានល្អជាងនេះ។"),
+      h("div",{},"លទ្ធផលនេះគ្រាន់តែជាជំហានដំបូងប៉ុណ្ណោះ។ ការរៀនពីកំហុសគឺជាផ្លូវទៅរកភាពជោគជ័យ។"),
+      h("div",{},"ដើម្បីទទួលបានពាន អ្នកត្រូវឆ្លើយត្រូវយ៉ាងតិច ៥០% ហើយអ្នកខ្វះតែ "+kn(need)+" សំណួរទៀតប៉ុណ្ណោះ។ សូមមើលចម្លើយខាងក្រោម រួចសាកល្បងម្តងទៀត។ អ្នកអាចធ្វើបាន!")));
+  }
+  top.append(h("p",{class:"note"},"ថ្នាក់ទី"+kn(r.grade)+" · "+r.subject+" · "+r.lesson));
+  top.append(h("div",{class:"row"},
+    h("button",{class:"btn primary",onclick:startQuizAgain},"ធ្វើម្តងទៀត"),
+    h("button",{class:"btn",onclick:function(){S.view="home";S.run=null;render();window.scrollTo(0,0)}},"ជ្រើសលំហាត់ផ្សេង")));
+  frag.append(top);
+
+  var cert=h("div",{class:"card cert"});
+  cert.append(h("h2",{},"លិខិតបញ្ជាក់"));
+  cert.append(h("div",{id:"certbox"},h("p",{class:"note"},"កំពុងរៀបចំលិខិតបញ្ជាក់...")));
+  cert.append(h("div",{class:"row",id:"certact"}));
+  cert.append(h("div",{id:"certmsg"}));
+  frag.append(cert);
+
+  var rv=h("div",{class:"card"});
+  rv.append(h("h2",{},"ពិនិត្យចម្លើយ"));
+  r.qs.forEach(function(x,i){
+    var ok=x.chosen===x.answer;
+    var d=h("details",{class:"rv",open:ok?false:true});
+    d.append(h("summary",{},h("span",{class:"mark "+(ok?"ok":"no")},ok?"✓":"✗"),h("span",{},kn(i+1)+". ",rich(x.q))));
+    var o=h("div",{class:"opts",style:"margin-top:10px"});
+    x.options.forEach(function(t,j){
+      var cls="opt static"+(j===x.answer?" ok":(j===x.chosen?" no":""));
+      o.append(h("div",{class:cls},h("b",{},LET[j]),h("span",{},rich(t))));
+    });
+    d.append(o);
+    if(x.chosen==null)d.append(h("p",{class:"note"},"អ្នកមិនបានឆ្លើយសំណួរនេះទេ។"));
+    if(x.explain)d.append(h("p",{class:"note"},"ពន្យល់៖ ",rich(x.explain)));
+    rv.append(d);
+  });
+  frag.append(rv);
+  return frag;
+}
+function startQuizAgain(){
+  var r=S.run;
+  S.grade=r.grade;S.subject=r.subject;S.lesson=r.lesson==="រួមគ្រប់មេរៀន"?"*":r.lesson;
+  startQuiz();
+}
+
+/* ---------- certificate (canvas) ---------- */
+var F1='Moul,"Battambang",serif';
+var F2='Battambang,serif';
+function fit(x,t,fam,weight,px,max){
+  var s=px;
+  do{x.font=weight+" "+s+"px "+fam;s-=2}while(x.measureText(t).width>max&&s>18);
+}
+function khDate(ts){
+  var d=new Date(ts);
+  return "ថ្ងៃទី"+kn(d.getDate())+" ខែ"+MONTHS[d.getMonth()]+" ឆ្នាំ"+kn(d.getFullYear());
+}
+function loadImg(src){
+  return new Promise(function(res){
+    var i=new Image();i.onload=function(){res(i)};i.onerror=function(){res(null)};i.src=src;
+  });
+}
+function starPath(x,cx,cy,R,r,n){
+  x.beginPath();
+  for(var i=0;i<n*2;i++){var a=-Math.PI/2+i*Math.PI/n,rad=i%2?r:R;x[i?"lineTo":"moveTo"](cx+rad*Math.cos(a),cy+rad*Math.sin(a))}
+  x.closePath();
+}
+function drawTrophy(x,cx,tier){
+  var T=TIERS[tier];
+  x.save();x.translate(cx,T.y);x.scale(T.k,T.k);
+  var g=x.createLinearGradient(-60,0,60,0);
+  g.addColorStop(0,T.c[2]);g.addColorStop(.3,T.c[0]);g.addColorStop(.62,T.c[1]);g.addColorStop(1,T.c[2]);
+  x.strokeStyle=g;x.lineCap="round";x.lineWidth=tier>=50?11:9;
+  x.beginPath();x.arc(-58,34,26,Math.PI/2,Math.PI*1.5);x.stroke();
+  x.beginPath();x.arc(58,34,26,-Math.PI/2,Math.PI/2);x.stroke();
+  if(tier>=50){
+    x.lineWidth=5;
+    x.beginPath();x.arc(-58,34,13,Math.PI/2,Math.PI*1.5);x.stroke();
+    x.beginPath();x.arc(58,34,13,-Math.PI/2,Math.PI/2);x.stroke();
+  }
+  x.fillStyle=g;
+  x.beginPath();x.moveTo(-58,0);x.lineTo(58,0);x.bezierCurveTo(58,56,32,86,0,90);x.bezierCurveTo(-32,86,-58,56,-58,0);x.closePath();x.fill();
+  x.fillStyle="rgba(255,255,255,.35)";
+  x.beginPath();x.moveTo(-44,6);x.lineTo(-30,6);x.bezierCurveTo(-30,48,-20,70,-8,80);x.bezierCurveTo(-34,66,-44,40,-44,6);x.fill();
+  x.fillStyle=g;x.fillRect(-64,-9,128,12);
+  x.fillRect(-9,88,18,28);
+  x.beginPath();x.ellipse(0,100,17,8,0,0,Math.PI*2);x.fill();
+  x.fillRect(-42,114,84,16);
+  x.fillStyle=T.c[2];x.fillRect(-58,130,116,20);
+  if(tier===30){x.fillStyle="rgba(255,255,255,.6)";x.fillRect(-56,22,112,5)}
+  if(tier>=50){x.fillStyle="rgba(255,255,255,.92)";starPath(x,0,40,19,8,5);x.fill()}
+  if(tier===100){
+    var gg=x.createLinearGradient(-22,-62,22,-12);gg.addColorStop(0,T.c[0]);gg.addColorStop(1,T.c[1]);
+    x.fillStyle=gg;x.beginPath();x.moveTo(0,-66);x.lineTo(24,-40);x.lineTo(0,-13);x.lineTo(-24,-40);x.closePath();x.fill();
+    x.strokeStyle="rgba(255,255,255,.8)";x.lineWidth=2;x.lineCap="butt";
+    x.beginPath();x.moveTo(-24,-40);x.lineTo(24,-40);x.moveTo(-9,-40);x.lineTo(0,-66);x.lineTo(9,-40);x.lineTo(0,-13);x.lineTo(-9,-40);x.stroke();
+    x.fillStyle=T.c[1];
+    starPath(x,-86,-30,13,3.5,4);x.fill();starPath(x,86,-30,13,3.5,4);x.fill();
+    starPath(x,-100,60,8,2.5,4);x.fill();starPath(x,100,60,8,2.5,4);x.fill();
+  }
+  x.restore();
+  var bottom=T.y+(tier===100?150:150)*T.k+6;
+  x.textAlign="center";x.textBaseline="alphabetic";
+  x.fillStyle=T.ink;fit(x,T.name,F1,"400",32,230);x.fillText(T.name,cx,bottom+46);
+  x.fillStyle="#5b6785";fit(x,kn(tier)+" សំណួរ",F2,"400",30,220);x.fillText(kn(tier)+" សំណួរ",cx,bottom+86);
+}
+function drawEncourage(x,cx){
+  x.save();
+  x.strokeStyle="#b8861b";x.lineWidth=5;x.lineJoin="round";
+  starPath(x,cx,175,58,24,5);x.stroke();
+  x.restore();
+  x.textAlign="center";x.textBaseline="alphabetic";
+  x.fillStyle="#b8861b";fit(x,"កុំបោះបង់!",F1,"400",32,230);x.fillText("កុំបោះបង់!",cx,300);
+  x.fillStyle="#142040";fit(x,"ខិតខំបន្ថែមទៀត",F2,"700",32,230);x.fillText("ខិតខំបន្ថែមទៀត",cx,348);
+  x.fillStyle="#5b6785";fit(x,"នឹងទទួលបានពាន",F2,"400",30,230);x.fillText("នឹងទទួលបានពាន",cx,390);
+}
+async function drawCert(r,logo){
+  var W=1754,H=1240;
+  var c=document.createElement("canvas");c.width=W;c.height=H;
+  var x=c.getContext("2d");
+  try{
+    await Promise.all([
+      document.fonts.load('60px Moul',"ក"),
+      document.fonts.load('40px Battambang',"ក"),
+      document.fonts.load('700 40px Battambang',"ក")]);
+  }catch(e){}
+  var NAVY="#142040",GOLD="#b8861b",MUTED="#5b6785";
+  x.fillStyle="#fffdf8";x.fillRect(0,0,W,H);
+  x.strokeStyle=NAVY;x.lineWidth=10;x.strokeRect(50,50,W-100,H-100);
+  x.strokeStyle=GOLD;x.lineWidth=3;x.strokeRect(74,74,W-148,H-148);
+  x.fillStyle=GOLD;
+  [[74,74],[W-74,74],[74,H-74],[W-74,H-74]].forEach(function(p){
+    x.beginPath();x.arc(p[0],p[1],12,0,Math.PI*2);x.fill();
+  });
+  x.textAlign="center";x.textBaseline="alphabetic";
+  var cx=W/2;
+
+  /* Logo (top-left) - drawn as is, no extra frame */
+  if(logo){
+    var LX=240,LY=240,LR=135;
+    var sc=Math.min(LR*2/logo.width,LR*2/logo.height);
+    var iw=logo.width*sc,ih=logo.height*sc;
+    x.drawImage(logo,LX-iw/2,LY-ih/2,iw,ih);
+  }
+
+  /* School name */
+  if(SCHOOL){
+    fit(x,SCHOOL,F1,"400",46,1000);
+    x.fillStyle=NAVY;x.fillText(SCHOOL,cx,152);
+  }
+  if(r.pass)drawTrophy(x,1555,tierOf(r.total));else drawEncourage(x,1555);
+  x.fillStyle=NAVY;fit(x,"លិខិតបញ្ជាក់",F1,"400",92,1300);x.fillText("លិខិតបញ្ជាក់",cx,285);
+  x.fillStyle=GOLD;fit(x,"ការចូលរួម និងលទ្ធផលលំហាត់ QCM",F2,"700",44,1300);x.fillText("ការចូលរួម និងលទ្ធផលលំហាត់ QCM",cx,352);
+  x.fillStyle=MUTED;x.font="400 34px "+F2;x.fillText("ប្រគល់ជូន",cx,428);
+  x.fillStyle=NAVY;fit(x,r.name,F1,"400",84,1200);x.fillText(r.name,cx,538);
+  x.strokeStyle=GOLD;x.lineWidth=3;x.beginPath();x.moveTo(cx-480,565);x.lineTo(cx+480,565);x.stroke();
+
+  /* Subject / grade band */
+  var lineA="វិញ្ញាសា៖ "+r.subject+"  ថ្នាក់ទី"+kn(r.grade);
+  x.fillStyle=NAVY;fit(x,lineA,F2,"700",40,1060);x.fillText(lineA,cx,634);
+  var lineB="មេរៀន៖ "+r.lesson;
+  x.fillStyle=NAVY;fit(x,lineB,F2,"400",38,1300);x.fillText(lineB,cx,704);
+  var sen="បានចូលរួមធ្វើលំហាត់ជ្រើសរើសចម្លើយ (QCM) ហើយទទួលបានលទ្ធផលដូចខាងក្រោម៖";
+  x.fillStyle=MUTED;fit(x,sen,F2,"400",32,1300);x.fillText(sen,cx,760);
+
+  var boxes=[["ចម្លើយត្រូវ",kn(r.correct)+" / "+kn(r.total)],["ពិន្ទុ",kn(String(r.s20))+" / "+kn(20)],["ភាគរយ",kn(r.pct)+"%"]];
+  var bw=360,gap=40,bx=(W-(bw*3+gap*2))/2,by=795,bh=125;
+  boxes.forEach(function(b,i){
+    var px=bx+i*(bw+gap);
+    x.fillStyle="#f1ede0";x.fillRect(px,by,bw,bh);
+    x.strokeStyle=GOLD;x.lineWidth=2;x.strokeRect(px,by,bw,bh);
+    x.fillStyle=MUTED;x.font="400 28px "+F2;x.fillText(b[0],px+bw/2,by+42);
+    x.fillStyle=NAVY;fit(x,b[1],F1,"400",50,bw-40);x.fillText(b[1],px+bw/2,by+100);
+  });
+  var rt="ការវាយតម្លៃ៖ "+rating(r.pct)+"  ·  ប្រើពេល "+mmss(r.t1-r.t0);
+  x.fillStyle=NAVY;fit(x,rt,F2,"700",40,1300);x.fillText(rt,cx,990);
+
+  /* Footer */
+  x.textAlign="left";x.fillStyle=NAVY;x.font="400 32px "+F2;
+  x.fillText(khDate(r.t1),170,1085);
+  x.fillStyle=MUTED;x.font="400 28px "+F2;x.fillText("លេខលិខិត៖ "+r.id,170,1130);
+  x.textAlign="center";
+  x.strokeStyle=NAVY;x.lineWidth=2;x.beginPath();x.moveTo(1230,1070);x.lineTo(1590,1070);x.stroke();
+  if(r.teacher){x.fillStyle=NAVY;fit(x,r.teacher,F2,"700",34,340);x.fillText(r.teacher,1410,1050)}
+  x.fillStyle=MUTED;x.font="400 28px "+F2;x.fillText("គ្រូបង្រៀន",1410,1118);
+  return c;
+}
+async function ensureCert(){
+  var r=S.run;if(!r)return;
+  var box=document.getElementById("certbox"),act=document.getElementById("certact");
+  if(!box)return;
+  if(!r.canvas){
+    if(r.busy)return;
+    r.busy=true;
+    var logo=await loadImg(LOGO);
+    try{r.canvas=await drawCert(r,logo);r.certUrl=r.canvas.toDataURL("image/png")}
+    catch(e){
+      try{r.canvas=await drawCert(r,null);r.certUrl=r.canvas.toDataURL("image/png")}
+      catch(e2){r.canvas=null;r.busy=false;box=document.getElementById("certbox");if(box){box.textContent="";box.append(h("div",{class:"msg err"},"មិនអាចបង្កើតលិខិតបញ្ជាក់បានទេ។ សូមសាកល្បងម្តងទៀត។"))}return}
+    }
+    r.busy=false;
+  }
+  if(S.run!==r||!document.getElementById("certbox"))return;
+  box=document.getElementById("certbox");act=document.getElementById("certact");
+  box.textContent="";
+  box.append(h("img",{src:r.certUrl,alt:"លិខិតបញ្ជាក់របស់ "+r.name}));
+  act.textContent="";
+  act.append(h("button",{class:"btn primary",onclick:saveCert},"ទាញយកលិខិតបញ្ជាក់ (រូបភាព PNG)"));
+}
+function saveCert(){
+  var r=S.run,msg=document.getElementById("certmsg");
+  if(!r||!r.canvas)return;
+  msg.textContent="";
+  r.canvas.toBlob(function(blob){
+    if(!blob){msg.append(h("div",{class:"msg err"},"មិនអាចទាញយកបានទេ។ សូមចុចសង្កត់លើរូបភាព រួចរក្សាទុក។"));return}
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement("a");
+    a.href=url;a.download="certificate-"+r.id+".png";
+    document.body.append(a);a.click();a.remove();
+    setTimeout(function(){URL.revokeObjectURL(url)},4000);
+    msg.append(h("div",{class:"msg ok"},"កំពុងទាញយកលិខិតបញ្ជាក់ជារូបភាព។ (បើមិនចេញ សូមចុចសង្កត់លើរូបភាពខាងលើ រួចជ្រើស «រក្សាទុករូបភាព»។)"));
+  },"image/png");
+}
+
+/* ---------- math editor (MathLive) ---------- */
+var mlPromise=null;
+function loadMathLive(){
+  if(window.customElements&&customElements.get("math-field"))return Promise.resolve(true);
+  if(!mlPromise){
+    mlPromise=new Promise(function(res){
+      var done=false;function fin(v){if(!done){done=true;if(!v)mlPromise=null;res(v)}}
+      var s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/mathlive";
+      s.onload=function(){customElements.whenDefined("math-field").then(function(){fin(true)})};
+      s.onerror=function(){fin(false)};
+      document.head.append(s);
+      setTimeout(function(){fin(false)},15000);
+    });
+  }
+  return mlPromise;
+}
+var PALETTE=[
+  ["ប្រភាគ  a/b","\\frac{#@}{#?}"],["ឬស  √","\\sqrt{#@}"],["ស្វ័យគុណ  xⁿ","#@^{#?}"],["សន្ទស្សន៍  xₙ","#@_{#?}"],
+  ["អាំងតេក្រាល  ∫","\\int_{#?}^{#?}#@\\,dx"],["លីមីត  lim","\\lim_{#?\\to #?}#@"],["ផលបូក  Σ","\\sum_{#?}^{#?}#@"],
+  ["ដេរីវេ  d/dx","\\frac{d}{dx}"],["sin","\\sin\\left(#@\\right)"],["log","\\log_{#?}\\left(#@\\right)"],
+  ["π","\\pi"],["∞","\\infty"],["≤","\\le"],["≥","\\ge"],["≠","\\ne"],["±","\\pm"],["×","\\times"],["÷","\\div"]
+];
+function openMath(onInsert){
+  var ov=h("div",{class:"ov"});
+  var dlg=h("div",{class:"dlg",role:"dialog","aria-label":"សរសេររូបមន្ត"});
+  var status=h("p",{class:"note"},"កំពុងផ្ទុកកម្មវិធីរូបមន្ត...");
+  var holder=h("div",{});
+  var pal=h("div",{class:"mathbar"});
+  var mf=null,ta=null;
+  function close(){try{if(window.mathVirtualKeyboard)window.mathVirtualKeyboard.hide()}catch(e){}ov.remove()}
+  function getVal(){return mf?mf.getValue("latex"):(ta?ta.value:"")}
+  var okBtn=h("button",{class:"btn primary",onclick:function(){
+    var v=getVal().trim();if(v)onInsert("$"+v+"$");close();
+  }},"បញ្ចូលរូបមន្ត");
+  var kbBtn=h("button",{class:"btn",onclick:function(){
+    try{if(window.mathVirtualKeyboard){window.mathVirtualKeyboard.visible=!window.mathVirtualKeyboard.visible;if(mf)mf.focus()}}catch(e){}
+  }},"⌨ ក្តារចុចរូបមន្ត");
+  kbBtn.style.display="none";
+  dlg.append(h("h2",{},"សរសេររូបមន្តគណិតវិទ្យា"),status,holder,pal,
+    h("div",{class:"row"},okBtn,kbBtn,h("button",{class:"btn",onclick:close},"បោះបង់")));
+  ov.append(dlg);
+  ov.onkeydown=function(e){if(e.key==="Escape")close()};
+  document.body.append(ov);
+  loadMathLive().then(function(ok){
+    if(ok){
+      mf=document.createElement("math-field");
+      mf.setAttribute("math-virtual-keyboard-policy","onfocus");
+      try{mf.mathVirtualKeyboardPolicy="onfocus"}catch(e){}
+      holder.append(mf);
+      PALETTE.forEach(function(p){
+        pal.append(h("button",{type:"button",class:"btn sm",onclick:function(){mf.insert(p[1]);mf.focus()}},p[0]));
+      });
+      kbBtn.style.display="";
+      status.textContent="វាយ ឬចុចប៊ូតុងខាងក្រោម/ក្តារចុចរូបមន្ត ដើម្បីសរសេររូបមន្ត រួចចុច «បញ្ចូលរូបមន្ត»។";
+      setTimeout(function(){mf.focus()},80);
+    }else{
+      ta=h("textarea",{placeholder:"\\frac{a}{b}   \\int_0^1 x\\,dx   \\lim_{x\\to 0}"});
+      holder.append(ta);
+      status.textContent="មិនអាចផ្ទុកកម្មវិធីរូបមន្តបានទេ (ពិនិត្យអ៊ីនធឺណិត)។ សូមសរសេរជា LaTeX ដោយផ្ទាល់។";
+      setTimeout(function(){ta.focus()},80);
+    }
+  });
+}
+function insertAtCursor(el,text){
+  var s=el.selectionStart!=null?el.selectionStart:el.value.length;
+  var e=el.selectionEnd!=null?el.selectionEnd:s;
+  el.value=el.value.slice(0,s)+text+el.value.slice(e);
+  var p=s+text.length;try{el.setSelectionRange(p,p)}catch(_){}
+  el.dispatchEvent(new Event("input",{bubbles:true}));el.focus();
+}
+var QUICK=[["a/b","$\\frac{a}{b}$"],["√","$\\sqrt{x}$"],["xⁿ","$x^{2}$"],["∫","$\\int_{a}^{b} f(x)\\,dx$"],["lim","$\\lim_{x\\to 0} f(x)$"],["Σ","$\\sum_{n=1}^{N} a_n$"]];
+function mathBar(el,quick){
+  var bar=h("div",{class:"mathbar"});
+  bar.append(h("button",{type:"button",class:"btn sm primary",onclick:function(){openMath(function(t){insertAtCursor(el,t)})}},"∑ កម្មវិធីរូបមន្ត"));
+  if(quick)QUICK.forEach(function(q){
+    bar.append(h("button",{type:"button",class:"btn sm",title:"បញ្ចូលគំរូរូបមន្ត",onclick:function(){insertAtCursor(el,q[1])}},q[0]));
+  });
+  return bar;
+}
+function livePreview(el){
+  var p=h("div",{class:"preview"});
+  function up(){p.textContent="";if(el.value.indexOf("$")>=0)p.append(h("span",{class:"lbl"},"មើលជាមុន៖ "),rich(el.value))}
+  var old=el.oninput;
+  el.oninput=function(){if(old)old.call(el);up()};
+  up();return p;
+}
+
+/* ---------- firebase: auth / data ---------- */
+async function loadProfile(){
+  var u=S.user;if(!u)return;
+  try{
+    var ref=fs.collection("users").doc(u.uid);
+    var snap=await ref.get();
+    if(snap.exists){S.profile=snap.data()}
+    else{
+      var p={name:u.displayName||u.email,email:u.email,status:S.isAdmin?"approved":"pending"};
+      await ref.set(Object.assign({createdAt:ts()},p));
+      S.profile=p;
+    }
+    S.authMsg=null;
+  }catch(e){S.profile=null;S.authMsg={t:"err",m:errMsg(e)}}
+}
+async function loadBank(){
+  if(!ONLINE)return;
+  S.loadingBank=true;S.bankErr=null;render();
+  try{
+    var snap=await fs.collection("questions").get();
+    bank=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())});
+  }catch(e){bank=[];S.bankErr="មិនអាចផ្ទុកលំហាត់បានទេ។ "+errMsg(e)}
+  S.loadingBank=false;render();
+}
+async function loadUsers(){
+  if(!S.isAdmin)return;
+  S.users=null;S.usersErr=null;render();
+  try{
+    var snap=await fs.collection("users").get();
+    S.users=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())});
+  }catch(e){S.users=[];S.usersErr=errMsg(e)}
+  render();
+}
+if(ONLINE){
+  auth.onAuthStateChanged(async function(u){
+    S.user=u;S.profile=null;S.isAdmin=u?isAdminEmail(u.email):false;
+    if(u&&!S.registering)await loadProfile();
+    S.authReady=true;render();
+  });
+  loadBank();
+}
+async function doLogin(){
+  var f=S.authForm;
+  if(!f.email.trim()||!f.pw){S.authMsg={t:"err",m:"សូមបំពេញអ៊ីមែល និងពាក្យសម្ងាត់។"};render();return}
+  S.busy=true;S.authMsg=null;render();
+  try{await auth.signInWithEmailAndPassword(f.email.trim(),f.pw);f.pw=""}
+  catch(e){S.authMsg={t:"err",m:errMsg(e)}}
+  S.busy=false;render();
+}
+async function doRegister(){
+  var f=S.authForm;
+  if(!f.name.trim()||!f.email.trim()||!f.pw){S.authMsg={t:"err",m:"សូមបំពេញឈ្មោះ អ៊ីមែល និងពាក្យសម្ងាត់។"};render();return}
+  if(f.pw.length<6){S.authMsg={t:"err",m:"ពាក្យសម្ងាត់យ៉ាងតិច ៦ តួ។"};render();return}
+  S.busy=true;S.registering=true;S.authMsg=null;render();
+  try{
+    var cred=await auth.createUserWithEmailAndPassword(f.email.trim(),f.pw);
+    var st=isAdminEmail(cred.user.email)?"approved":"pending";
+    var p={name:f.name.trim(),email:cred.user.email,status:st};
+    await fs.collection("users").doc(cred.user.uid).set(Object.assign({createdAt:ts()},p));
+    S.user=cred.user;S.isAdmin=isAdminEmail(cred.user.email);S.profile=p;f.pw="";
+  }catch(e){S.authMsg={t:"err",m:errMsg(e)}}
+  S.registering=false;S.busy=false;render();
+}
+async function doReset(){
+  var f=S.authForm;
+  if(!f.email.trim()){S.authMsg={t:"err",m:"សូមបំពេញអ៊ីមែលសិន។"};render();return}
+  try{await auth.sendPasswordResetEmail(f.email.trim());S.authMsg={t:"ok",m:"បានផ្ញើតំណកំណត់ពាក្យសម្ងាត់ទៅអ៊ីមែលរបស់អ្នក។"}}
+  catch(e){S.authMsg={t:"err",m:errMsg(e)}}
+  render();
+}
+function doLogout(){auth.signOut().then(function(){S.users=null;S.tab="add";S.flash=null;render()})}
+
+/* ---------- teacher ---------- */
+function viewTeacher(){
+  if(!ONLINE)return setupCard();
+  if(!S.authReady)return h("div",{class:"card"},h("p",{class:"note"},"កំពុងពិនិត្យគណនី..."));
+  if(!S.user)return authCard();
+  if(!S.profile)return h("div",{class:"card"},
+    h("h2",{},"មិនអាចផ្ទុកព័ត៌មានគណនីបានទេ"),
+    S.authMsg?h("div",{class:"msg err"},S.authMsg.m):null,
+    h("div",{class:"row"},h("button",{class:"btn primary",onclick:async function(){await loadProfile();render()}},"ព្យាយាមម្តងទៀត"),h("button",{class:"btn",onclick:doLogout},"ចាកចេញ")));
+  var st=S.profile.status;
+  if(!S.isAdmin&&st==="pending")return h("div",{class:"card"},
+    h("h2",{},"រង់ចាំការយល់ព្រម"),
+    h("p",{},"សួស្តី "+S.profile.name+"។ គណនីរបស់អ្នកបានចុះឈ្មោះរួចហើយ ប៉ុន្តែត្រូវរង់ចាំ Admin យល់ព្រមសិន ទើបអ្នកអាចបន្ថែមលំហាត់បាន។"),
+    h("div",{class:"row"},
+      h("button",{class:"btn primary",onclick:async function(){await loadProfile();render()}},"ពិនិត្យម្តងទៀត"),
+      h("button",{class:"btn",onclick:doLogout},"ចាកចេញ")));
+  if(!S.isAdmin&&st!=="approved")return h("div",{class:"card"},
+    h("h2",{},"គណនីមិនត្រូវបានអនុញ្ញាត"),
+    h("p",{},"Admin បានបដិសេធ ឬដកសិទ្ធិគណនីនេះ។ សូមទាក់ទង Admin ។"),
+    h("div",{class:"row"},h("button",{class:"btn",onclick:doLogout},"ចាកចេញ")));
+  return workspace();
+}
+function setupCard(){
+  return h("div",{class:"card"},
+    h("h2",{},"ប្រព័ន្ធគណនីគ្រូមិនទាន់ដំឡើង"),
+    h("p",{},"សូមបំពេញ Firebase និង adminEmail ក្នុងឯកសារ config.js (មើលជំហានក្នុង README.md) ។ ក្នុងពេលនេះសិស្សអាចហាត់លំហាត់គំរូបាន។"));
+}
+function authCard(){
+  var F=S.authForm,reg=S.authMode==="register";
+  var card=h("div",{class:"card"});
+  card.append(h("h2",{},"ផ្នែកគ្រូ"));
+  var t=h("div",{class:"tabs"});
+  t.append(chip("ចូលគណនី",null,!reg,function(){S.authMode="login";S.authMsg=null;render()}));
+  t.append(chip("ចុះឈ្មោះគ្រូថ្មី",null,reg,function(){S.authMode="register";S.authMsg=null;render()}));
+  card.append(t);
+  function inp(id,type,key,ph,ac){
+    var i=h("input",{type:type,id:id,value:F[key],placeholder:ph,autocomplete:ac});
+    i.oninput=function(){F[key]=i.value};
+    i.onkeydown=function(e){if(e.key==="Enter"&&key==="pw")(reg?doRegister:doLogin)()};
+    return i;
+  }
+  if(reg)card.append(h("div",{class:"field"},h("label",{class:"lbl","for":"a-name"},"ឈ្មោះពេញរបស់គ្រូ"),inp("a-name","text","name","ឧ. លោកគ្រូ ស៊ឹម សុខា","name")));
+  card.append(h("div",{class:"field"},h("label",{class:"lbl","for":"a-email"},"អ៊ីមែល"),inp("a-email","email","email","name@example.com","email")));
+  card.append(h("div",{class:"field"},h("label",{class:"lbl","for":"a-pw"},"ពាក្យសម្ងាត់"),inp("a-pw","password","pw",reg?"យ៉ាងតិច ៦ តួ":"ពាក្យសម្ងាត់",reg?"new-password":"current-password")));
+  if(reg)card.append(h("p",{class:"note"},"បន្ទាប់ពីចុះឈ្មោះ អ្នកត្រូវរង់ចាំ Admin យល់ព្រម ទើបអាចបន្ថែមលំហាត់បាន។"));
+  if(S.authMsg)card.append(h("div",{class:"msg "+S.authMsg.t},S.authMsg.m));
+  card.append(h("div",{class:"row"},
+    h("button",{class:"btn primary",disabled:S.busy,onclick:reg?doRegister:doLogin},S.busy?"សូមរង់ចាំ...":(reg?"ចុះឈ្មោះ":"ចូល")),
+    reg?null:h("button",{class:"btn sm",onclick:doReset},"ភ្លេចពាក្យសម្ងាត់?")));
+  return card;
+}
+function pendingCount(){return S.users?S.users.filter(function(u){return u.status==="pending"}).length:0}
+function workspace(){
+  var frag=document.createDocumentFragment();
+  frag.append(datalists());
+  var bar=h("div",{class:"card"});
+  bar.append(h("div",{class:"pubbar"},
+    h("div",{},h("h2",{},S.profile.name),h("p",{class:"note"},(S.isAdmin?"Admin":"គ្រូ")+" · "+S.profile.email+" · ការកែប្រែត្រូវបានរក្សាទុក និងបង្ហាញដល់សិស្សភ្លាមៗ")),
+    h("button",{class:"btn",onclick:doLogout},"ចាកចេញ")));
+  frag.append(bar);
+  var tabs=h("div",{class:"tabs"});
+  var list=[["add",S.form.editId?"កែលំហាត់":"បន្ថែមលំហាត់"],["list","បញ្ជីលំហាត់ ("+kn(bank.length)+")"],["io","នាំចូល / នាំចេញ"]];
+  if(S.isAdmin)list.push(["users","គ្រប់គ្រងគណនីគ្រូ"]);
+  list.forEach(function(t){
+    var c=chip(t[1],null,S.tab===t[0],function(){S.tab=t[0];S.flash=null;if(t[0]==="users")loadUsers();else render()});
+    if(t[0]==="users"&&pendingCount())c.append(h("span",{class:"badge"},kn(pendingCount())));
+    tabs.append(c);
+  });
+  frag.append(tabs);
+  if(S.tab==="add")frag.append(tabAdd());
+  else if(S.tab==="list")frag.append(tabList());
+  else if(S.tab==="users"&&S.isAdmin)frag.append(tabUsers());
+  else frag.append(tabIO());
+  return frag;
+}
+function datalists(){
+  var subs=uniq(SUGGEST.concat(bank.map(function(q){return q.subject})));
+  var ls=uniq(bank.map(function(q){return q.lesson}).filter(Boolean));
+  var f=document.createDocumentFragment();
+  var a=h("datalist",{id:"dl-sub"});subs.forEach(function(s){a.append(h("option",{value:s}))});
+  var b=h("datalist",{id:"dl-les"});ls.forEach(function(s){b.append(h("option",{value:s}))});
+  f.append(a,b);return f;
+}
+function gradeSelect(id,val,fn){
+  var s=h("select",{id:id});
+  GRADES.forEach(function(g){s.append(h("option",{value:String(g)},"ថ្នាក់ទី"+kn(g)))});
+  s.value=String(val);
+  s.onchange=function(){fn(parseInt(s.value,10))};
+  return s;
+}
+
+/* teacher: user management (admin) */
+function tabUsers(){
+  var card=h("div",{class:"card"});
+  card.append(h("h2",{},"គណនីគ្រូ"));
+  if(S.users===null){card.append(h("p",{class:"note"},"កំពុងផ្ទុក..."));return card}
+  if(S.usersErr)card.append(h("div",{class:"msg err"},S.usersErr));
+  var order={pending:0,approved:1,rejected:2};
+  var us=S.users.filter(function(u){return !isAdminEmail(u.email)}).sort(function(a,b){return (order[a.status]-order[b.status])||String(a.name).localeCompare(String(b.name))});
+  if(!us.length)card.append(h("p",{class:"note"},"មិនទាន់មានគ្រូចុះឈ្មោះទេ។"));
+  us.forEach(function(u){
+    var tagCls=u.status==="approved"?"ok":(u.status==="pending"?"wait":"no");
+    var tagTxt=u.status==="approved"?"បានយល់ព្រម":(u.status==="pending"?"រង់ចាំ":"បដិសេធ");
+    var when=u.createdAt&&u.createdAt.toDate?khDate(u.createdAt.toDate()):"";
+    var btns=h("div",{class:"row"});
+    function setSt(st){return async function(){
+      try{await fs.collection("users").doc(u.id).update({status:st});u.status=st;S.usersErr=null}
+      catch(e){S.usersErr=errMsg(e)}
+      render();
+    }}
+    if(u.status!=="approved")btns.append(h("button",{class:"btn sm primary",onclick:setSt("approved")},"យល់ព្រម"));
+    if(u.status==="pending")btns.append(h("button",{class:"btn sm danger",onclick:setSt("rejected")},"បដិសេធ"));
+    if(u.status==="approved")btns.append(h("button",{class:"btn sm danger",onclick:setSt("rejected")},"ដកសិទ្ធិ"));
+    card.append(h("div",{class:"urow"},
+      h("div",{class:"who"},h("b",{},u.name)," ",h("span",{class:"tag "+tagCls},tagTxt),h("div",{class:"note"},u.email+(when?" · "+when:""))),
+      btns));
+  });
+  card.append(h("div",{class:"row"},h("button",{class:"btn sm",onclick:loadUsers},"ផ្ទុកបញ្ជីឡើងវិញ")));
+  return card;
+}
+
+/* teacher: add / edit question */
+function tabAdd(){
+  var F=S.form;
+  var card=h("div",{class:"card"});
+  card.append(h("h2",{},F.editId?"កែលំហាត់":"បន្ថែមលំហាត់ថ្មី"));
+  var sub=h("input",{type:"text",id:"f-sub",list:"dl-sub",value:F.subject,placeholder:"ឧ. គណិតវិទ្យា"});
+  var les=h("input",{type:"text",id:"f-les",list:"dl-les",value:F.lesson,placeholder:"ឧ. សមីការដឺក្រេទី១"});
+  sub.oninput=function(){F.subject=sub.value};
+  les.oninput=function(){F.lesson=les.value};
+  card.append(h("div",{class:"grid2"},
+    h("div",{class:"field"},h("label",{class:"lbl","for":"f-grade"},"ថ្នាក់"),gradeSelect("f-grade",F.grade,function(g){F.grade=g})),
+    h("div",{class:"field"},h("label",{class:"lbl","for":"f-sub"},"មុខវិជ្ជា"),sub),
+    h("div",{class:"field"},h("label",{class:"lbl","for":"f-les"},"មេរៀន"),les)));
+  var q=h("textarea",{id:"f-q",placeholder:"សរសេរសំណួរនៅទីនេះ។ ចុច «∑ កម្មវិធីរូបមន្ត» ដើម្បីបញ្ចូលរូបមន្ត"});q.value=F.q;
+  q.oninput=function(){F.q=q.value};
+  card.append(h("div",{class:"field"},h("label",{class:"lbl","for":"f-q"},"សំណួរ"),mathBar(q,true),q,livePreview(q)));
+  card.append(h("p",{class:"note"},"រូបមន្តត្រូវបានរក្សាទុកជា LaTeX រវាងសញ្ញា $...$ (ឧ. $\\frac{1}{2}$) ។ អ្នកក៏អាចវាយ LaTeX ដោយផ្ទាល់បាន។"));
+  card.append(h("div",{class:"lbl"},"ជម្រើសចម្លើយ (ជ្រើសរង្វង់ខាងមុខចម្លើយត្រឹមត្រូវ)"));
+  for(var i=0;i<4;i++)(function(i){
+    var inp=h("input",{type:"text",id:"f-o"+i,value:F.o[i],placeholder:"ជម្រើស "+LET[i]});
+    inp.oninput=function(){F.o[i]=inp.value};
+    var rad=h("input",{type:"radio",name:"f-ans",id:"f-r"+i,checked:F.ans===i,"aria-label":"ចម្លើយត្រឹមត្រូវ "+LET[i]});
+    rad.onchange=function(){F.ans=i};
+    var mb=h("button",{type:"button",class:"btn sm primary",title:"បញ្ចូលរូបមន្ត",onclick:function(){openMath(function(t){insertAtCursor(inp,t)})}},"∑");
+    var pv=livePreview(inp);
+    card.append(h("div",{class:"radio-row"},rad,h("b",{},LET[i]),h("div",{class:"grow"},inp,pv),mb));
+  })(i);
+  var ex=h("textarea",{id:"f-ex",placeholder:"ពន្យល់ចម្លើយ (មិនចាំបាច់)"});ex.value=F.explain;
+  ex.oninput=function(){F.explain=ex.value};
+  card.append(h("div",{class:"field"},h("label",{class:"lbl","for":"f-ex"},"ពន្យល់ចម្លើយ"),mathBar(ex,true),ex,livePreview(ex)));
+  if(S.flash&&!S.flash.where)card.append(h("div",{class:"msg "+S.flash.t},S.flash.m));
+  card.append(h("div",{class:"row"},
+    h("button",{class:"btn primary",disabled:S.busy,onclick:saveForm},F.editId?"រក្សាទុកការកែ":"បន្ថែមចូលបញ្ជី"),
+    F.editId?h("button",{class:"btn",onclick:function(){resetForm();S.flash=null;render()}},"បោះបង់"):null));
+  return card;
+}
+function resetForm(){
+  var F=S.form;
+  S.form={grade:F.grade,subject:F.subject,lesson:F.lesson,q:"",o:["","","",""],ans:0,explain:"",editId:null};
+}
+async function saveForm(){
+  var F=S.form;
+  var subject=F.subject.trim(),lesson=F.lesson.trim(),qt=F.q.trim();
+  if(!subject||!qt){S.flash={t:"err",m:"សូមបំពេញមុខវិជ្ជា និងសំណួរ។"};render();return}
+  var opts=[],ans=-1;
+  F.o.forEach(function(o,i){
+    var t=o.trim();if(!t)return;
+    if(i===F.ans)ans=opts.length;
+    opts.push(t);
+  });
+  if(opts.length<2){S.flash={t:"err",m:"សូមបំពេញជម្រើសចម្លើយយ៉ាងតិចពីរ។"};render();return}
+  if(ans<0){S.flash={t:"err",m:"ចម្លើយត្រឹមត្រូវត្រូវតែជាជម្រើសដែលមានអក្សរ។"};render();return}
+  var old=F.editId?bank.filter(function(b){return b.id===F.editId})[0]:null;
+  var id=F.editId||uid();
+  var rec={grade:F.grade,subject:subject,lesson:lesson,q:qt,options:opts,answer:ans,explain:F.explain.trim(),
+    ownerUid:old?old.ownerUid:S.user.uid,by:old?(old.by||""):S.profile.name};
+  S.busy=true;render();
+  try{
+    await fs.collection("questions").doc(id).set(Object.assign({updatedAt:ts()},rec));
+    var full=Object.assign({id:id},rec);
+    if(old)bank=bank.map(function(b){return b.id===id?full:b});else bank.push(full);
+    S.flash={t:"ok",m:old?"បានរក្សាទុកការកែប្រែ។":"បានបន្ថែមលំហាត់។ អាចសរសេរសំណួរបន្ទាប់បានភ្លាម។"};
+    resetForm();
+  }catch(e){S.flash={t:"err",m:errMsg(e)}}
+  S.busy=false;render();
+}
+
+/* teacher: list */
+function canEdit(q){return S.isAdmin||q.ownerUid===(S.user&&S.user.uid)}
+function tabList(){
+  var card=h("div",{class:"card"});
+  var inGrade=bank.filter(function(q){return !S.flt.grade||String(q.grade)===S.flt.grade});
+  var subs=uniq(inGrade.map(function(q){return q.subject}));
+  if(S.flt.subject&&subs.indexOf(S.flt.subject)<0){S.flt.subject="";S.flt.lesson=""}
+  var inSub=inGrade.filter(function(q){return !S.flt.subject||q.subject===S.flt.subject});
+  var les=uniq(inSub.map(function(q){return q.lesson}).filter(Boolean));
+  var hasNone=inSub.some(function(q){return !q.lesson});
+  if(S.flt.lesson&&S.flt.lesson!=="__none__"&&les.indexOf(S.flt.lesson)<0)S.flt.lesson="";
+  var fg=h("select",{id:"l-grade"});fg.append(h("option",{value:""},"គ្រប់ថ្នាក់"));
+  GRADES.forEach(function(g){fg.append(h("option",{value:String(g)},"ថ្នាក់ទី"+kn(g)))});
+  fg.value=S.flt.grade;fg.onchange=function(){S.flt.grade=fg.value;S.flt.subject="";S.flt.lesson="";render()};
+  var fs2=h("select",{id:"l-sub"});fs2.append(h("option",{value:""},"គ្រប់មុខវិជ្ជា"));
+  subs.forEach(function(x){fs2.append(h("option",{value:x},x))});
+  fs2.value=S.flt.subject;fs2.onchange=function(){S.flt.subject=fs2.value;S.flt.lesson="";render()};
+  var fl=h("select",{id:"l-les"});fl.append(h("option",{value:""},"គ្រប់មេរៀន"));
+  les.forEach(function(x){fl.append(h("option",{value:x},x))});
+  if(hasNone)fl.append(h("option",{value:"__none__"},"(មិនមានឈ្មោះមេរៀន)"));
+  fl.value=S.flt.lesson;fl.onchange=function(){S.flt.lesson=fl.value;render()};
+  card.append(h("div",{class:"grid2"},
+    h("div",{class:"field"},h("label",{class:"lbl","for":"l-grade"},"ថ្នាក់"),fg),
+    h("div",{class:"field"},h("label",{class:"lbl","for":"l-sub"},"មុខវិជ្ជា"),fs2),
+    h("div",{class:"field"},h("label",{class:"lbl","for":"l-les"},"មេរៀន"),fl)));
+  var list=inSub.filter(function(q){
+    return !S.flt.lesson||(S.flt.lesson==="__none__"?!q.lesson:q.lesson===S.flt.lesson);
+  });
+  card.append(h("p",{class:"note"},"បង្ហាញ "+kn(list.length)+" / "+kn(bank.length)+" លំហាត់"));
+  if(S.isAdmin){
+    var row=h("div",{class:"row"});
+    if(!bank.length)row.append(h("button",{class:"btn sm",onclick:seedSamples},"បញ្ចូលលំហាត់ឧទាហរណ៍ ២២ ចូលប្រព័ន្ធ"));
+    if(bank.some(function(q){return q.sample}))row.append(h("button",{class:"btn sm danger",onclick:deleteSamples},"លុបលំហាត់ឧទាហរណ៍ទាំងអស់"));
+    if(row.childNodes.length)card.append(row);
+  }
+  if(S.flash&&S.flash.where==="list")card.append(h("div",{class:"msg "+S.flash.t},S.flash.m));
+  if(!list.length)card.append(h("p",{class:"note"},"មិនមានលំហាត់ទេ។"));
+  list.forEach(function(q){
+    var ol=h("ol",{});
+    q.options.forEach(function(o,i){ol.append(h("li",{class:i===q.answer?"c":""},LET[i]+". ",rich(o),i===q.answer?" ✓":""))});
+    var del=S.delId===q.id;
+    var ctl=h("div",{class:"row"});
+    if(canEdit(q)){
+      ctl.append(
+        h("button",{class:"btn sm",onclick:function(){
+          var o=["","","",""];q.options.forEach(function(t,i){o[i]=t});
+          S.form={grade:q.grade,subject:q.subject,lesson:q.lesson,q:q.q,o:o,ans:q.answer,explain:q.explain||"",editId:q.id};
+          S.tab="add";S.flash=null;render();window.scrollTo(0,0);
+        }},"កែ"),
+        h("button",{class:"btn sm danger",onclick:async function(){
+          if(!del){S.delId=q.id;render();return}
+          try{await fs.collection("questions").doc(q.id).delete();bank=bank.filter(function(b){return b.id!==q.id});S.delId=null}
+          catch(e){S.flash={t:"err",where:"list",m:errMsg(e)}}
+          render();
+        }},del?"ចុចម្តងទៀតដើម្បីលុប":"លុប"));
+    }
+    card.append(h("div",{class:"qrow"},
+      h("div",{class:"row"},
+        h("span",{class:"tag"},"ថ្នាក់ទី"+kn(q.grade)),h("span",{class:"tag"},q.subject),
+        q.lesson?h("span",{class:"tag"},q.lesson):null,
+        q.by?h("span",{class:"tag"},"ដោយ "+q.by):null,
+        q.sample?h("span",{class:"tag sample"},"ឧទាហរណ៍"):null),
+      h("p",{},rich(q.q)),ol,ctl));
+  });
+  return card;
+}
+async function addMany(recs){
+  for(var i=0;i<recs.length;i+=400){
+    var b=fs.batch();
+    recs.slice(i,i+400).forEach(function(r){
+      var d=Object.assign({},r);delete d.id;
+      b.set(fs.collection("questions").doc(r.id),Object.assign({updatedAt:ts()},d));
+    });
+    await b.commit();
+  }
+  recs.forEach(function(r){bank.push(r)});
+}
+async function seedSamples(){
+  var recs=SAMPLES.map(function(q){return{id:uid()+q.id,grade:q.grade,subject:q.subject,lesson:q.lesson||"",q:q.q,options:q.options,answer:q.answer,explain:q.explain||"",sample:true,ownerUid:S.user.uid,by:S.profile.name}});
+  try{await addMany(recs);S.flash={t:"ok",where:"list",m:"បានបញ្ចូលលំហាត់ឧទាហរណ៍។"}}
+  catch(e){S.flash={t:"err",where:"list",m:errMsg(e)}}
+  render();
+}
+async function deleteSamples(){
+  var ids=bank.filter(function(q){return q.sample}).map(function(q){return q.id});
+  try{
+    for(var i=0;i<ids.length;i+=400){
+      var b=fs.batch();ids.slice(i,i+400).forEach(function(id){b.delete(fs.collection("questions").doc(id))});
+      await b.commit();
+    }
+    bank=bank.filter(function(q){return !q.sample});
+  }catch(e){S.flash={t:"err",where:"list",m:errMsg(e)}}
+  render();
+}
+
+/* teacher: import / export */
+function tabIO(){
+  var I=S.imp;
+  var frag=document.createDocumentFragment();
+  var a=h("div",{class:"card"});
+  a.append(h("h2",{},"បញ្ចូលលំហាត់ច្រើនក្នុងពេលតែមួយ"));
+  var sub=h("input",{type:"text",id:"i-sub",list:"dl-sub",value:I.subject,placeholder:"មុខវិជ្ជា"});
+  var les=h("input",{type:"text",id:"i-les",list:"dl-les",value:I.lesson,placeholder:"មេរៀន"});
+  sub.oninput=function(){I.subject=sub.value};les.oninput=function(){I.lesson=les.value};
+  a.append(h("div",{class:"grid2"},
+    h("div",{class:"field"},h("label",{class:"lbl","for":"i-grade"},"ថ្នាក់"),gradeSelect("i-grade",I.grade,function(g){I.grade=g})),
+    h("div",{class:"field"},h("label",{class:"lbl","for":"i-sub"},"មុខវិជ្ជា"),sub),
+    h("div",{class:"field"},h("label",{class:"lbl","for":"i-les"},"មេរៀន"),les)));
+  var ta=h("textarea",{id:"i-text",style:"min-height:200px",placeholder:"សំណួរទី១?\nក. ជម្រើសទី១\nខ. ជម្រើសទី២\nគ. ជម្រើសទី៣\nឃ. ជម្រើសទី៤\nចម្លើយ៖ ខ\nពន្យល់៖ ហេតុផល (មិនចាំបាច់)\n\nសំណួរទី២?\n..."});
+  ta.value=I.text;ta.oninput=function(){I.text=ta.value};
+  a.append(h("div",{class:"field"},h("label",{class:"lbl","for":"i-text"},"អត្ថបទលំហាត់"),mathBar(ta,true),ta));
+  a.append(h("p",{class:"note"},"សំណួរនីមួយៗបំបែកដោយបន្ទាត់ទទេ។ ជម្រើសចាប់ផ្តើមដោយ «ក.» «ខ.» «គ.» «ឃ.» (ឬ A. B. C. D.)។ បន្ទាត់ចម្លើយសរសេរ «ចម្លើយ៖ ខ» ។ រូបមន្តសរសេរជា $...$ ។"));
+  if(S.flash&&S.flash.where==="text")a.append(h("div",{class:"msg "+S.flash.t},S.flash.m));
+  a.append(h("div",{class:"row"},h("button",{class:"btn primary",disabled:S.busy,onclick:importText},"បញ្ចូលចូលបញ្ជី")));
+  frag.append(a);
+
+  var b=h("div",{class:"card"});
+  b.append(h("h2",{},"នាំចេញ / នាំចូលជា JSON"));
+  b.append(h("p",{class:"note"},"ប្រើសម្រាប់ទុកបម្រុង ឬផ្ទេរលំហាត់។ ការនាំចូលនឹង «បន្ថែម» ចូលលំហាត់ដែលមានស្រាប់ (មិនលុបអ្វីទេ)។"));
+  var out=h("textarea",{id:"j-out",readonly:true,style:"min-height:120px"});
+  out.value=JSON.stringify({questions:bank.map(function(q){return{grade:q.grade,subject:q.subject,lesson:q.lesson,q:q.q,options:q.options,answer:q.answer,explain:q.explain||""}})});
+  b.append(h("div",{class:"field"},h("label",{class:"lbl","for":"j-out"},"ទិន្នន័យបច្ចុប្បន្ន"),out));
+  var jm=h("div",{id:"j-msg"});
+  b.append(h("div",{class:"row"},
+    h("button",{class:"btn",onclick:function(){
+      jm.textContent="";
+      try{navigator.clipboard.writeText(out.value).then(function(){jm.append(h("div",{class:"msg ok"},"បានចម្លង។"))},function(){out.select()})}catch(e){out.select()}
+    }},"ចម្លង"),
+    h("button",{class:"btn",onclick:function(){
+      var u=URL.createObjectURL(new Blob([out.value],{type:"application/json"}));
+      var an=document.createElement("a");an.href=u;an.download="qcm-bank.json";document.body.append(an);an.click();an.remove();
+      setTimeout(function(){URL.revokeObjectURL(u)},3000);
+    }},"ទាញយកជា JSON")));
+  b.append(jm);
+  var jin=h("textarea",{id:"j-in",placeholder:"បិទភ្ជាប់ JSON នៅទីនេះ"});jin.value=I.json;jin.oninput=function(){I.json=jin.value};
+  b.append(h("div",{class:"field"},h("label",{class:"lbl","for":"j-in"},"នាំចូល JSON"),jin));
+  if(S.flash&&S.flash.where==="json")b.append(h("div",{class:"msg "+S.flash.t},S.flash.m));
+  b.append(h("div",{class:"row"},h("button",{class:"btn",disabled:S.busy,onclick:importJSON},"នាំចូល JSON")));
+  frag.append(b);
+  return frag;
+}
+async function importText(){
+  var I=S.imp;
+  var subject=I.subject.trim(),lesson=I.lesson.trim();
+  if(!subject){S.flash={t:"err",where:"text",m:"សូមបំពេញមុខវិជ្ជាសិន។"};render();return}
+  var map={"ក":0,"ខ":1,"គ":2,"ឃ":3,"a":0,"b":1,"c":2,"d":3};
+  var optRe=/^([កខគឃA-Da-d])\s*[\.\)\:។]\s*(.+)$/;
+  var ansRe=/^(ចម្លើយត្រឹមត្រូវ|ចម្លើយ|answer)\s*[:：៖]\s*(\S+)/i;
+  var exRe=/^(ពន្យល់|explain)\s*[:：៖]\s*(.*)$/i;
+  var labelRe=/^(សំណួរ(ទី)?|question)\s*[\d០-៩]*\s*[:：៖\.\)។]?\s*$/i;
+  var blocks=I.text.split(/\n\s*\n/),recs=[],skipped=0;
+  blocks.forEach(function(blk){
+    var lines=blk.split("\n").map(function(l){return l.trim()}).filter(Boolean);
+    if(!lines.length)return;
+    var qlines=[],opts=[],ans=-1,exl=[],started=false,inEx=false;
+    lines.forEach(function(l){
+      var a=l.match(ansRe),e=l.match(exRe),m=l.match(optRe);
+      if(a){started=true;var k=a[2].charAt(0).toLowerCase();if(map[k]!=null)ans=map[k]}
+      else if(e){started=true;inEx=true;if(e[2])exl.push(e[2])}
+      else if(inEx)exl.push(l);
+      else if(m){started=true;opts.push(m[2].trim())}
+      else if(!started)qlines.push(l);
+      else if(opts.length)opts[opts.length-1]+=" "+l;
+    });
+    var ex=exl.join("\n");
+    if(qlines.length>1&&labelRe.test(qlines[0]))qlines.shift();
+    var qt=qlines.join("\n").replace(/^[\d០-៩]+\s*[\.\)។:]\s*/,"");
+    if(!qt||opts.length<2||ans<0||ans>=opts.length){skipped++;return}
+    recs.push({id:uid()+recs.length,grade:I.grade,subject:subject,lesson:lesson,q:qt,options:opts,answer:ans,explain:ex,ownerUid:S.user.uid,by:S.profile.name});
+  });
+  var made=0;
+  if(recs.length){
+    S.busy=true;render();
+    try{await addMany(recs);made=recs.length;I.text=""}
+    catch(e){S.busy=false;S.flash={t:"err",where:"text",m:errMsg(e)};render();return}
+    S.busy=false;
+  }
+  S.flash={t:made?"ok":"err",where:"text",m:"បានបញ្ចូល "+kn(made)+" សំណួរ"+(skipped?" · រំលង "+kn(skipped)+" (ទម្រង់មិនត្រឹមត្រូវ)":"")+"។"};
+  render();
+}
+async function importJSON(){
+  var I=S.imp;
+  try{
+    var d=JSON.parse(I.json);
+    var qs=Array.isArray(d)?d:d.questions;
+    if(!Array.isArray(qs))throw 0;
+    var recs=qs.filter(function(q){
+      return q&&typeof q.q==="string"&&Array.isArray(q.options)&&q.options.length>=2&&Number.isInteger(q.answer)&&q.answer>=0&&q.answer<q.options.length&&GRADES.indexOf(q.grade)>=0&&typeof q.subject==="string";
+    }).map(function(q,i){
+      return{id:uid()+i,grade:q.grade,subject:q.subject,lesson:q.lesson||"",q:q.q,options:q.options.map(String),answer:q.answer,explain:q.explain||"",ownerUid:S.user.uid,by:S.profile.name};
+    });
+    S.busy=true;render();
+    await addMany(recs);
+    I.json="";S.busy=false;
+    S.flash={t:"ok",where:"json",m:"បាននាំចូល "+kn(recs.length)+" សំណួរ។"};
+  }catch(e){S.busy=false;S.flash={t:"err",where:"json",m:(e&&e.code)?errMsg(e):"JSON មិនត្រឹមត្រូវ។ សូមពិនិត្យម្តងទៀត។"}}
+  render();
+}
+
+render();
+})();
+</script>
+</body>
+</html>
