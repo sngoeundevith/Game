@@ -435,7 +435,7 @@ function viewResult(){
   rv.append(h("h2",{},"ពិនិត្យចម្លើយ"));
   r.qs.forEach(function(x,i){
     var ok=x.chosen===x.answer;
-    var d=h("details",{class:"rv"});
+    var d=h("details",{class:"rv",open:ok?false:true});
     d.append(h("summary",{},h("span",{class:"mark "+(ok?"ok":"no")},ok?"✓":"✗"),h("span",{},kn(i+1)+". ",rich(x.q))));
     var o=h("div",{class:"opts",style:"margin-top:10px"});
     x.options.forEach(function(t,j){
@@ -1064,21 +1064,23 @@ async function importText(){
   var map={"ក":0,"ខ":1,"គ":2,"ឃ":3,"a":0,"b":1,"c":2,"d":3};
   var optRe=/^([កខគឃA-Da-d])\s*[\.\)\:។]\s*(.+)$/;
   var ansRe=/^(ចម្លើយត្រឹមត្រូវ|ចម្លើយ|answer)\s*[:：៖]\s*(\S+)/i;
-  var exRe=/^(ពន្យល់|explain)\s*[:：៖]\s*(.+)$/i;
+  var exRe=/^(ពន្យល់|explain)\s*[:：៖]\s*(.*)$/i;
   var labelRe=/^(សំណួរ(ទី)?|question)\s*[\d០-៩]*\s*[:：៖\.\)។]?\s*$/i;
   var blocks=I.text.split(/\n\s*\n/),recs=[],skipped=0;
   blocks.forEach(function(blk){
     var lines=blk.split("\n").map(function(l){return l.trim()}).filter(Boolean);
     if(!lines.length)return;
-    var qlines=[],opts=[],ans=-1,ex="",started=false;
+    var qlines=[],opts=[],ans=-1,exl=[],started=false,inEx=false;
     lines.forEach(function(l){
       var a=l.match(ansRe),e=l.match(exRe),m=l.match(optRe);
       if(a){started=true;var k=a[2].charAt(0).toLowerCase();if(map[k]!=null)ans=map[k]}
-      else if(e){started=true;ex=e[2]}
+      else if(e){started=true;inEx=true;if(e[2])exl.push(e[2])}
+      else if(inEx)exl.push(l);
       else if(m){started=true;opts.push(m[2].trim())}
       else if(!started)qlines.push(l);
-      else if(opts.length&&!ex)opts[opts.length-1]+=" "+l;
+      else if(opts.length)opts[opts.length-1]+=" "+l;
     });
+    var ex=exl.join("\n");
     if(qlines.length>1&&labelRe.test(qlines[0]))qlines.shift();
     var qt=qlines.join("\n").replace(/^[\d០-៩]+\s*[\.\)។:]\s*/,"");
     if(!qt||opts.length<2||ans<0||ans>=opts.length){skipped++;return}
