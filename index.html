@@ -264,6 +264,7 @@ function errMsg(e){
     "auth/network-request-failed":"គ្មានអ៊ីនធឺណិត ឬបណ្តាញមានបញ្ហា។",
     "auth/operation-not-allowed":"Firebase មិនទាន់បើកវិធីចូលនេះទេ (Email/Password ឬ Anonymous) ។ មើល README។",
     "auth/admin-restricted-operation":"Firebase មិនទាន់បើក Anonymous ទេ។ មើល README។",
+    "resource-exhausted":"ប្រើដល់ដែនកំណត់ឥតគិតថ្លៃរបស់ Firebase ប្រចាំថ្ងៃហើយ។ សូមព្យាយាមម្តងទៀតក្រោយម៉ោង ៣ រសៀល (ម៉ោងកម្ពុជា) ឬឱ្យ Admin ពិនិត្យ Usage ក្នុង Firebase។",
     "permission-denied":"គ្មានសិទ្ធិធ្វើសកម្មភាពនេះទេ។ (ពិនិត្យ Firestore Rules និងស្ថានភាពគណនី)"
   };
   return m[c]||("មានបញ្ហា៖ "+(c||(e&&e.message)||"មិនស្គាល់"));
@@ -799,13 +800,34 @@ async function loadProfile(){
     S.authMsg=null;
   }catch(e){S.profile=null;S.authMsg={t:"err",m:errMsg(e)}}
 }
+var BANK_CK="qcm_bank_cache_v2";
+function cacheGet(){try{return JSON.parse(localStorage.getItem(BANK_CK)||"null")}catch(e){return null}}
+function cacheSet(v,b){try{localStorage.setItem(BANK_CK,JSON.stringify({v:v,t:Date.now(),bank:b}))}catch(e){}}
+function bankChanged(){
+  try{localStorage.removeItem(BANK_CK)}catch(e){}
+  return fs.collection("meta").doc("bank").set({v:Date.now()}).catch(function(){});
+}
 async function loadBank(){
   if(!ONLINE)return;
   S.loadingBank=true;S.bankErr=null;render();
+  var c=cacheGet(),ver=null,metaOk=false;
   try{
-    var snap=await fs.collection("questions").get();
-    bank=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())});
-  }catch(e){bank=[];S.bankErr="មិនអាចផ្ទុកលំហាត់បានទេ។ "+errMsg(e)}
+    var m=await fs.collection("meta").doc("bank").get();
+    metaOk=true;ver=m.exists?m.data().v:0;
+  }catch(e){}
+  try{
+    var fresh=c&&(metaOk?(ver!==0&&c.v===ver):false);
+    var recent=c&&metaOk&&ver===0&&(Date.now()-c.t<3600000);
+    if(fresh||recent){bank=c.bank}
+    else{
+      var snap=await fs.collection("questions").get();
+      bank=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())});
+      cacheSet(metaOk?ver:0,bank);
+    }
+  }catch(e){
+    if(c&&c.bank){bank=c.bank}
+    else{bank=[];S.bankErr="មិនអាចផ្ទុកលំហាត់បានទេ។ "+errMsg(e)}
+  }
   S.loadingBank=false;render();
 }
 async function loadUsers(){
@@ -1179,7 +1201,7 @@ async function btNext(){
     await btWrite({answered:done,correct:BT.correct,finished:true,timeMs:BT.timeMs});
   }else{
     BT.i++;BT.chosen=null;
-    btWrite({answered:done,correct:BT.correct,finished:false,timeMs:null});
+    if(qs.length<=10||done%5===0)btWrite({answered:done,correct:BT.correct,finished:false,timeMs:null});
     render();window.scrollTo(0,0);
   }
 }
@@ -1504,6 +1526,7 @@ async function saveForm(){
   S.busy=true;render();
   try{
     await fs.collection("questions").doc(id).set(Object.assign({updatedAt:ts()},rec));
+    bankChanged();
     var full=Object.assign({id:id},rec);
     if(old)bank=bank.map(function(b){return b.id===id?full:b});else bank.push(full);
     S.flash={t:"ok",m:old?"បានរក្សាទុកការកែប្រែ។":"បានបន្ថែមលំហាត់។ អាចសរសេរសំណួរបន្ទាប់បានភ្លាម។"};
@@ -1563,7 +1586,7 @@ function tabList(){
         }},"កែ"),
         h("button",{class:"btn sm danger",onclick:async function(){
           if(!del){S.delId=q.id;render();return}
-          try{await fs.collection("questions").doc(q.id).delete();bank=bank.filter(function(b){return b.id!==q.id});S.delId=null}
+          try{await fs.collection("questions").doc(q.id).delete();bank=bank.filter(function(b){return b.id!==q.id});S.delId=null;bankChanged()}
           catch(e){S.flash={t:"err",where:"list",m:errMsg(e)}}
           render();
         }},del?"ចុចម្តងទៀតដើម្បីលុប":"លុប"));
@@ -1588,6 +1611,7 @@ async function addMany(recs){
     await b.commit();
   }
   recs.forEach(function(r){bank.push(r)});
+  bankChanged();
 }
 async function seedSamples(){
   var recs=SAMPLES.map(function(q){return{id:uid()+q.id,grade:q.grade,subject:q.subject,lesson:q.lesson||"",q:q.q,options:q.options,answer:q.answer,explain:q.explain||"",sample:true,ownerUid:S.user.uid,by:S.profile.name}});
@@ -1603,6 +1627,7 @@ async function deleteSamples(){
       await b.commit();
     }
     bank=bank.filter(function(q){return !q.sample});
+    bankChanged();
   }catch(e){S.flash={t:"err",where:"list",m:errMsg(e)}}
   render();
 }
