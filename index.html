@@ -264,7 +264,7 @@ function errMsg(e){
     "auth/network-request-failed":"គ្មានអ៊ីនធឺណិត ឬបណ្តាញមានបញ្ហា។",
     "auth/operation-not-allowed":"Firebase មិនទាន់បើកវិធីចូលនេះទេ (Email/Password ឬ Anonymous) ។ មើល README។",
     "auth/admin-restricted-operation":"Firebase មិនទាន់បើក Anonymous ទេ។ មើល README។",
-    "resource-exhausted":"ថ្ងៃនេះមានអ្នកចូលប្រកួតច្រើនដល់ដែនកំណត់ប្រចាំថ្ងៃហើយ។ សូមព្យាយាមម្តងទៀតក្រោយម៉ោង ៣ រសៀល ។",
+    "resource-exhausted":"ប្រើដល់ដែនកំណត់ឥតគិតថ្លៃរបស់ Firebase ប្រចាំថ្ងៃហើយ។ សូមព្យាយាមម្តងទៀតក្រោយម៉ោង ៣ រសៀល (ម៉ោងកម្ពុជា) ឬឱ្យ Admin ពិនិត្យ Usage ក្នុង Firebase។",
     "permission-denied":"គ្មានសិទ្ធិធ្វើសកម្មភាពនេះទេ។ (ពិនិត្យ Firestore Rules និងស្ថានភាពគណនី)"
   };
   return m[c]||("មានបញ្ហា៖ "+(c||(e&&e.message)||"មិនស្គាល់"));
@@ -318,8 +318,7 @@ function picker(box,key,counts,labelFn,title){
   box.append(h("div",{class:"lbl"},"ថ្នាក់"));
   var cg=h("div",{class:"chips"});
   GRADES.forEach(function(g){
-    var n=bank.filter(function(q){return q.grade===g}).length;
-    cg.append(chip("ថ្នាក់ទី"+kn(g),n,S.grade===g,function(){S.grade=g;S.subject=null;S.lesson="*";render()}));
+    cg.append(chip("ថ្នាក់ទី"+kn(g),null,S.grade===g,function(){S.grade=g;S.subject=null;S.lesson="*";render()}));
   });
   box.append(cg);
   if(S.grade!=null){
@@ -330,8 +329,7 @@ function picker(box,key,counts,labelFn,title){
       box.append(h("div",{class:"lbl"},"មុខវិជ្ជា"));
       var cs=h("div",{class:"chips"});
       subs.forEach(function(sj){
-        var n=bank.filter(function(q){return q.grade===S.grade&&q.subject===sj}).length;
-        cs.append(chip(sj,n,S.subject===sj,function(){S.subject=sj;S.lesson="*";render()}));
+        cs.append(chip(sj,null,S.subject===sj,function(){S.subject=sj;S.lesson="*";render()}));
       });
       box.append(cs);
     }
@@ -341,10 +339,9 @@ function picker(box,key,counts,labelFn,title){
     var ls=uniq(base.map(function(q){return q.lesson}));
     box.append(h("div",{class:"lbl"},"មេរៀន"));
     var cl=h("div",{class:"chips"});
-    cl.append(chip("គ្រប់មេរៀន",base.length,S.lesson==="*",function(){S.lesson="*";render()}));
+    cl.append(chip("គ្រប់មេរៀន",null,S.lesson==="*",function(){S.lesson="*";render()}));
     ls.forEach(function(l){
-      var n=base.filter(function(q){return q.lesson===l}).length;
-      cl.append(chip(l||"(មិនមានឈ្មោះមេរៀន)",n,S.lesson===l,function(){S.lesson=l;render()}));
+      cl.append(chip(l||"(មិនមានឈ្មោះមេរៀន)",null,S.lesson===l,function(){S.lesson=l;render()}));
     });
     box.append(cl);
     avail=pool().length;
@@ -369,8 +366,8 @@ function viewHome(){
   else if(S.bankErr){box.append(h("div",{class:"msg err"},S.bankErr),h("div",{class:"row"},h("button",{class:"btn sm",onclick:loadBank},"ព្យាយាមម្តងទៀត")))}
   var avail=picker(box,"count",LEVELS,function(n){return TIERS[n].name},"កម្រិតលំហាត់ (ចំនួនសំណួរ និងពាន)");
   if(S.grade!=null&&S.subject){
-    if(avail<S.count)box.append(h("p",{class:"note"},"មេរៀន/មុខវិជ្ជាដែលបានជ្រើសមានលំហាត់ "+kn(avail)+" ប៉ុណ្ណោះ។ ត្រូវមានយ៉ាងតិច ១០ សំណួរ ទើបចាប់ផ្តើមបាន។ សូមជ្រើស «គ្រប់មេរៀន» ឬមុខវិជ្ជាផ្សេង។"));
-    else box.append(h("p",{class:"note"},"មាន "+kn(avail)+" លំហាត់។ ឆ្លើយត្រូវយ៉ាងតិច ៥០% ទើបទទួលបាន"+TIERS[S.count].name+"។ បើមិនដល់ ៥០% នៅតែទទួលបានលិខិតចូលរួម តែគ្មានពាន។"));
+    if(avail<S.count)box.append(h("p",{class:"note"},"លំហាត់ក្នុងមេរៀន/មុខវិជ្ជាដែលបានជ្រើសមិនទាន់គ្រប់សម្រាប់ចាប់ផ្តើមទេ។ សូមជ្រើស «គ្រប់មេរៀន» ឬមុខវិជ្ជាផ្សេង។"));
+    else box.append(h("p",{class:"note"},"ឆ្លើយត្រូវយ៉ាងតិច ៥០% ទើបទទួលបាន"+TIERS[S.count].name+"។ បើមិនដល់ ៥០% នៅតែទទួលបានលិខិតចូលរួម តែគ្មានពាន។"));
   }
   var nameIn=h("input",{type:"text",id:"stu-name",placeholder:"ឈ្មោះពេញរបស់អ្នក",value:S.name,autocomplete:"name",maxlength:"60"});
   var go=h("button",{class:"btn primary",disabled:!(avail>=S.count&&S.name.trim()),onclick:startQuiz},"ចាប់ផ្តើមលំហាត់");
@@ -926,7 +923,7 @@ function viewBHome(){
   if(S.loadingBank)cr.append(h("p",{class:"note"},"កំពុងផ្ទុកលំហាត់..."));
   else if(S.bankErr)cr.append(h("div",{class:"msg err"},S.bankErr));
   var avail=picker(cr,"bcount",LEVELS,function(){return ""},"ចំនួនសំណួរក្នុងការប្រកួត");
-  if(S.grade!=null&&S.subject&&avail<S.bcount)cr.append(h("p",{class:"note"},"មានលំហាត់ "+kn(avail)+" ប៉ុណ្ណោះ។ ត្រូវមានយ៉ាងតិច ១០ សំណួរ។"));
+  if(S.grade!=null&&S.subject&&avail<S.bcount)cr.append(h("p",{class:"note"},"លំហាត់មិនទាន់គ្រប់សម្រាប់ការប្រកួតនេះទេ។ សូមជ្រើស «គ្រប់មេរៀន» ឬមុខវិជ្ជាផ្សេង។"));
   var go=h("button",{class:"btn primary",onclick:createRoom},S.busy?"សូមរង់ចាំ...":"បង្កើតបន្ទប់");
   var jn=null;
   function upd(){
