@@ -202,7 +202,7 @@ body.liveon{padding:0;background:#0b1634}
 <div id="app"></div>
 
 <script src="config.js"></script>
-<script type="application/json" id="bank">{"meta":{"title":"លំហាត់ QCM","org":"","teacher":""},"questions":[
+<script type="application/json" id="bank">{"meta":{"title":"លំហាត់ MCQ","org":"","teacher":""},"questions":[
 {"id":"s01","grade":4,"subject":"គណិតវិទ្យា","lesson":"ប្រមាណវិធីបូក និងដក","q":"245 + 138 = ?","options":["373","383","363","483"],"answer":1,"explain":"245 + 138 = 383","sample":true},
 {"id":"s02","grade":4,"subject":"គណិតវិទ្យា","lesson":"ប្រមាណវិធីបូក និងដក","q":"500 − 175 = ?","options":["325","335","425","315"],"answer":0,"explain":"500 − 175 = 325","sample":true},
 {"id":"s03","grade":4,"subject":"គណិតវិទ្យា","lesson":"តារាងគុណ និងចែក","q":"6 × 7 = ?","options":["36","42","48","49"],"answer":1,"explain":"6 × 7 = 42","sample":true},
@@ -416,7 +416,7 @@ function viewMenu(){
   function item(ic,t,sub,fn){return h("button",{class:"mbtn",onclick:fn},h("div",{class:"ic"},ic),h("div",{},h("b",{},t),h("span",{},sub)))}
   var m=h("div",{class:"menu"});
   m.append(
-    item("📝","លំហាត់ QCM","ហាត់ធ្វើតេស្តម្នាក់ឯង ទទួលបានលិខិតបញ្ជាក់ និងពាន",function(){S.view="home";render()}),
+    item("📝","លំហាត់ MCQ","ហាត់ធ្វើតេស្តម្នាក់ឯង ទទួលបានលិខិតបញ្ជាក់ និងពាន",function(){S.view="home";render()}),
     item("⚔️","ប្រកួត","ប្រកួតជាមួយមិត្តភក្តិ ពី ២ ដល់ ១០ នាក់ ក្នុងបន្ទប់តែមួយ",function(){S.bmsg=null;S.view="bhome";render()}),
     item("📡","ថ្នាក់ Live","ចូលថ្នាក់ដែលគ្រូកំពុងបញ្ចាំងលើ LCD ដោយវាយលេខកូដ រួចចុចប៊ូតុងពណ៌ឆ្លើយ",function(){S.lmsg=null;S.view="livejoin";render()}),
     item("👩‍🏫","មុខងារគ្រូ","ចុះឈ្មោះ ចូលគណនី និងបន្ថែមលំហាត់",function(){S.teacher=true;S.view="teacher";S.flash=null;render()}));
@@ -498,7 +498,7 @@ function viewHome(){
 /* ---------- student: quiz ---------- */
 function certId(){
   var d=new Date();
-  return "QCM-"+String(d.getFullYear()).slice(2)+("0"+(d.getMonth()+1)).slice(-2)+("0"+d.getDate()).slice(-2)+"-"+Math.random().toString(36).slice(2,6).toUpperCase();
+  return "MCQ-"+String(d.getFullYear()).slice(2)+("0"+(d.getMonth()+1)).slice(-2)+("0"+d.getDate()).slice(-2)+"-"+Math.random().toString(36).slice(2,6).toUpperCase();
 }
 async function startQuiz(){
   var n=S.count;
@@ -739,7 +739,7 @@ async function drawCert(r,logo){
   }
   if(r.pass)drawTrophy(x,1555,tierOf(r.total));else drawEncourage(x,1555);
   x.fillStyle=NAVY;fit(x,"លិខិតបញ្ជាក់",F1,"400",92,1300);x.fillText("លិខិតបញ្ជាក់",cx,285);
-  x.fillStyle=GOLD;fit(x,"ការចូលរួម និងលទ្ធផលលំហាត់ QCM",F2,"700",44,1300);x.fillText("ការចូលរួម និងលទ្ធផលលំហាត់ QCM",cx,352);
+  x.fillStyle=GOLD;fit(x,"ការចូលរួម និងលទ្ធផលលំហាត់ MCQ",F2,"700",44,1300);x.fillText("ការចូលរួម និងលទ្ធផលលំហាត់ MCQ",cx,352);
   x.fillStyle=MUTED;x.font="400 34px "+F2;x.fillText("ប្រគល់ជូន",cx,428);
   x.fillStyle=NAVY;fit(x,r.name,F1,"400",84,1200);x.fillText(r.name,cx,538);
   x.strokeStyle=GOLD;x.lineWidth=3;x.beginPath();x.moveTo(cx-480,565);x.lineTo(cx+480,565);x.stroke();
@@ -749,7 +749,7 @@ async function drawCert(r,logo){
   x.fillStyle=NAVY;fit(x,lineA,F2,"700",40,1060);x.fillText(lineA,cx,634);
   var lineB="មេរៀន៖ "+r.lesson;
   x.fillStyle=NAVY;fit(x,lineB,F2,"400",38,1300);x.fillText(lineB,cx,704);
-  var sen="បានចូលរួមធ្វើលំហាត់ជ្រើសរើសចម្លើយ (QCM) ហើយទទួលបានលទ្ធផលដូចខាងក្រោម៖";
+  var sen="បានចូលរួមធ្វើលំហាត់ជ្រើសរើសចម្លើយ (MCQ) ហើយទទួលបានលទ្ធផលដូចខាងក្រោម៖";
   x.fillStyle=MUTED;fit(x,sen,F2,"400",32,1300);x.fillText(sen,cx,760);
 
   var boxes=[["ចម្លើយត្រូវ",kn(r.correct)+" / "+kn(r.total)],["ពិន្ទុ",kn(String(r.s20))+" / "+kn(20)],["ភាគរយ",kn(r.pct)+"%"]];
@@ -1367,7 +1367,7 @@ async function drawBCert(r,logo){
   }
   if(SCHOOL){x.fillStyle=GOLD;fit(x,SCHOOL,F1,"400",42,960);x.fillText(SCHOOL,cx,150)}
   x.fillStyle="#ffffff";fit(x,"លិខិតបញ្ជាក់ការប្រកួត",F1,"400",78,1150);x.fillText("លិខិតបញ្ជាក់ការប្រកួត",cx,268);
-  x.fillStyle=SOFT;fit(x,"ការប្រកួតប្រជែងលំហាត់ QCM",F2,"700",40,1100);x.fillText("ការប្រកួតប្រជែងលំហាត់ QCM",cx,335);
+  x.fillStyle=SOFT;fit(x,"ការប្រកួតប្រជែងលំហាត់ MCQ",F2,"700",40,1100);x.fillText("ការប្រកួតប្រជែងលំហាត់ MCQ",cx,335);
 
   /* medallion */
   function leaf(px,py,ang,L,Wd){x.save();x.translate(px,py);x.rotate(ang);x.beginPath();x.ellipse(0,0,L,Wd,0,0,Math.PI*2);x.fill();x.restore()}
