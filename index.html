@@ -416,9 +416,9 @@ function viewMenu(){
   function item(ic,t,sub,fn){return h("button",{class:"mbtn",onclick:fn},h("div",{class:"ic"},ic),h("div",{},h("b",{},t),h("span",{},sub)))}
   var m=h("div",{class:"menu"});
   m.append(
-    item("📝","លំហាត់ QCM","ហាត់ធ្វើតេស្តម្នាក់ឯង ទទួលបានលិខិតបញ្ជាក់ និងពាន",function(){S.view="home";render()}),
-    item("⚔️","ប្រកួត","ប្រកួតជាមួយមិត្តភក្តិ ពី ២ ដល់ ១០ នាក់ ក្នុងបន្ទប់តែមួយ",function(){S.bmsg=null;S.view="bhome";render()}),
-    item("📡","ថ្នាក់ Live","ចូលថ្នាក់ដែលគ្រូកំពុងបញ្ចាំងលើ LCD ដោយវាយលេខកូដ រួចចុចប៊ូតុងពណ៌ឆ្លើយ",function(){S.lmsg=null;S.view="livejoin";render()}),
+    item("📝","លំហាត់ MCQ","ហាត់ធ្វើតេស្តម្នាក់ឯង ទទួលបានលិខិតបញ្ជាក់",function(){S.view="home";render()}),
+    item("⚔️","ប្រកួត","ប្រកួតជាមួយមិត្តភក្តិ ពី ២ ដល់ ១០ នាក់",function(){S.bmsg=null;S.view="bhome";render()}),
+    item("📡","ថ្នាក់ Live","ចូលថ្នាក់ដែលគ្រូកំពុងបញ្ចាំងលើ LCD ដោយវាយលេខកូដដើម្បីចូលរួម",function(){S.lmsg=null;S.view="livejoin";render()}),
     item("👩‍🏫","មុខងារគ្រូ","ចុះឈ្មោះ ចូលគណនី និងបន្ថែមលំហាត់",function(){S.teacher=true;S.view="teacher";S.flash=null;render()}));
   return h("div",{class:"card"},h("h2",{},"សូមជ្រើសរើស"),m);
 }
